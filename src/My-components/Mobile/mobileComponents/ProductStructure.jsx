@@ -1,43 +1,137 @@
+"use client"
+
+import Image from "next/image";
+import MobileBadge from "./MobileBadge";
+import { useState } from "react";
+import SizeButtonGroup from "./SizeButtonGroup";
+import QuantityUpdate from "./QuantityUpdate";
+import Button from "./Button";
+import Wishlist from "@/My-components/commonComponents/Wishlist";
+import SizeGuide from "@/My-components/commonComponents/SizeGuide";
+
+
+const ProductStructure = ({ src, title, badgeText, text, price, productId }) => {
 
 
 
-const ProductStructure = ({src,title,paragraph,price,productId}) => {
+    const [size, setSize] = useState("medium")
 
 
 
-    return(
-        <div>
+    return (
+        <div className="flex flex-col items-center xs:max-w-[360px]">
 
 
             {/* product image */}
 
+            <div className="w-full">
+                <img src={src} alt="" />
+            </div>
 
 
-            {/* product title */}
+
+
+
+
+
+            {/* product title before 370px  */}
+            <div className=" w-full flex
+            flex-col items-start
+            xs:hidden
+            ">
+
+                {/* badge */}
+                <div className=" w-full flex justify-end my-[10px]">
+                    <MobileBadge text={badgeText} />
+                </div>
+
+
+                {/* title */}
+                <h1 className=" text-black font-poppins
+                text-2xl mb-[10px]">{title}</h1>
+
+            </div>
+
+
+
+
+
+
+
+
+            {/* product title after 370px  */}
+            <div className=" w-full 
+            hidden my-[10px]
+            xs:flex
+            ">
+
+                {/* title */}
+                <h1 className=" text-black font-poppins
+                text-2xl">{title}</h1>
+
+
+                {/* badge */}
+                <div>
+                    <MobileBadge text={badgeText} />
+                </div>
+
+            </div>
+
+
+
+
 
 
 
             {/* product paragraph */}
+            <div className=" mb-[30px]">
+                <p className=" text-black font-poppins
+                text-md leading-[18px]">{text}</p>
+            </div>
+
 
 
 
             {/* product price */}
-
+            <div className=" w-full mb-[20px]">
+                <h1 className=" text-3xl text-mainColour
+                ">₹ {price}</h1>
+            </div>
 
 
             {/* product size */}
+            <div className=" w-full mb-[10px]">
 
+                <p className="text-lg mb-[10px]">Size</p>
+
+
+
+                {/* size buttons container */}
+                <SizeButtonGroup />
+            </div>
 
 
             {/* product quantity */}
-
+            <div className=" w-full flex justify-start mb-[20px]">
+                <QuantityUpdate />
+            </div>
 
 
             {/* add to cart & buy now */}
+            <div className="w-full flex justify-start mb-[30px]">
+                <Button size={"md"} className={"mr-[10px]"} type={"solid"} value={"Add to cart"}/>
+                <Button size={"md"} type={"outline-solid"} value={"Buy now"}/>
+                
+            </div>
 
-            
 
             {/* add to wishlist & size guide */}
+            <div>
+                <Wishlist/>
+                <SizeGuide/>
+            </div>
+
+
 
         </div>
     )

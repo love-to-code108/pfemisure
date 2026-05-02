@@ -121,9 +121,17 @@ const MobileHomePage = () => {
 
 
                 {/* product 1 */}
-                <div>
+                <div className='w-full px-[10px] flex flex-col items-center'>
 
-                    <ProductStructure/>
+                    <ProductStructure 
+                    src={"https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/pfemisureMobile/mobileHomePageProductGreenIon.jpg"}
+                    title={"Green AN-ION Pad"}
+                    badgeText={"pack of 15 pads"}
+                    text={"Green Anion Technology: Embedded strip neutralizes odor, inhibits bacteria, and balances pH for lasting freshness through out all day and night.Discreet Trifold Wrapper, Neatly folded and individually wrapped for pocket-sized portability and hygienic disposal."}
+                    price={"329.0"}
+
+                    
+                    />
                 </div>
 
 

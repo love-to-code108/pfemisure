@@ -1,10 +1,16 @@
+import MobileHomePage from "@/My-components/Mobile/Page/MobileHomePage"
 
+const HomePage = () => {
 
-const MobileHomePage = () => {
+    
 
-
-
-    return(
-        <div>This is the home page</div>
+    return (
+        <div>
+            <MobileHomePage/>
+        </div>
     )
+
 }
+
+
+export default HomePage

@@ -1,6 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Playwrite+US+Trad:wght@100..400&display=swap');
 @import "tailwindcss";
 
-/* @import url('https://fonts.googleapis.com/css2?family=Playwrite+US+Trad:wght@100..400&display=swap'); */
 
 
 
@@ -19,10 +19,15 @@
 
   /* my inputs */
   --font-inter: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
+  --font-playfair: var(--font-playfair), ui-serif, Georgia, serif;
   --font-poppins: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
   --font-reddit: var(--font-reddit-sans), ui-sans-serif, system-ui, sans-serif;
   --font-playwrite: "Playwrite US Trad", cursive;
+
+  --color-mainColour2:#CF2DFF;
+  --color-mainColour:#9501C1;
+  --color-buttonGrey:#E6E6E6;
+  --color-mediumGrey:#A3A3A3;
 }
 
 

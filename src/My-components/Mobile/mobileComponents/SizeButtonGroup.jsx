@@ -1,5 +1,5 @@
 
-import Button from "./Button";
+import Button from "@/My-components/commonComponents/Button";
 
 
 const SizeButtonGroup = ({currentSize,setCurrentSize}) => {

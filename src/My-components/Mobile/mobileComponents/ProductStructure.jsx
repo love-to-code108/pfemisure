@@ -4,8 +4,8 @@ import Image from "next/image";
 import MobileBadge from "./MobileBadge";
 import { useState } from "react";
 import SizeButtonGroup from "./SizeButtonGroup";
-import QuantityUpdate from "./QuantityUpdate";
-import Button from "./Button";
+import QuantityUpdate from "@/My-components/commonComponents/QuantityUpdate";
+import Button from "@/My-components/commonComponents/Button";
 import Wishlist from "@/My-components/commonComponents/Wishlist";
 import SizeGuide from "@/My-components/commonComponents/SizeGuide";
 
@@ -19,7 +19,10 @@ const ProductStructure = ({ src, title, badgeText, text, price, productId }) => 
 
 
     return (
-        <div className="flex flex-col items-center xs:max-w-[360px]">
+        <div className="flex flex-col items-center xs:max-w-[360px]
+        
+        mb-[100px]
+        ">
 
 
             {/* product image */}
@@ -34,10 +37,9 @@ const ProductStructure = ({ src, title, badgeText, text, price, productId }) => 
 
 
 
-            {/* product title before 370px  */}
+            {/* product title  */}
             <div className=" w-full flex
             flex-col items-start
-            xs:hidden
             ">
 
                 {/* badge */}
@@ -52,30 +54,6 @@ const ProductStructure = ({ src, title, badgeText, text, price, productId }) => 
 
             </div>
 
-
-
-
-
-
-
-
-            {/* product title after 370px  */}
-            <div className=" w-full 
-            hidden my-[10px]
-            xs:flex
-            ">
-
-                {/* title */}
-                <h1 className=" text-black font-poppins
-                text-2xl">{title}</h1>
-
-
-                {/* badge */}
-                <div>
-                    <MobileBadge text={badgeText} />
-                </div>
-
-            </div>
 
 
 
@@ -126,7 +104,7 @@ const ProductStructure = ({ src, title, badgeText, text, price, productId }) => 
 
 
             {/* add to wishlist & size guide */}
-            <div>
+            <div className=" w-full flex">
                 <Wishlist/>
                 <SizeGuide/>
             </div>

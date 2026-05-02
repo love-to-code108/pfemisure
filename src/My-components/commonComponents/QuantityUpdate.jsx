@@ -11,7 +11,7 @@ const QuantityUpdate = ({ quantityState, setQuantityState }) => {
             
             <Button type={"rounded"} value={<MinusIcon className=""/>}/>
 
-            <p className=" text-2xl">0</p>
+            <p className=" text-2xl">1</p>
 
             
             <Button type={"rounded"} value={<PlusIcon className=""/>}/>

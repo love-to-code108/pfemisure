@@ -5,8 +5,10 @@ const SizeGuide = () => {
 
 
     return(
-        <div className=" text-lg flex items-center w-[100px]">
-            <RulerDimensionLine />
+        <div className=" flex items-center
+        text-sm xs:text-lg min-w-[120px]
+        ">
+            <RulerDimensionLine className=" mr-[5px]"/>
             <p>Size Guide</p>
         </div>
     )

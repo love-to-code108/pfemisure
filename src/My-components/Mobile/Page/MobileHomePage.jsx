@@ -18,7 +18,7 @@ const MobileHomePage = () => {
 
 
                 {/* hero section  */}
-                <div className=" h-[100svh] bg-gradient-to-b from-[#FFCCFC] from-[87%] to-white
+                <div className="w-full h-[100svh] bg-gradient-to-b from-[#FFCCFC] from-[87%] to-white
                 
                 px-[10px]
                 ">
@@ -100,20 +100,6 @@ const MobileHomePage = () => {
 
 
 
-                {/* image example */}
-
-                {/* <Image
-                    src="https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/pfemisureMobile/mobileHomePageImg1.jpg"
-                    alt="AN-ION Period Panty"
-                    width={360}
-                    height={463}
-                    className=' rounded-md'
-                /> */}
-
-
-
-
-
 
 
 
@@ -121,9 +107,42 @@ const MobileHomePage = () => {
 
 
                 {/* product 1 */}
-                <div>
+                <div className='w-full px-[10px] flex flex-col items-center'>
 
-                    <ProductStructure/>
+
+                    {/* product 1 */}
+                    <ProductStructure 
+                    src={"https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/pfemisureMobile/mobileHomePageProductGreenIon.jpg"}
+                    title={"Green AN-ION Pad"}
+                    badgeText={"pack of 15 pads"}
+                    text={"Green Anion Technology: Embedded strip neutralizes odor, inhibits bacteria, and balances pH for lasting freshness through out all day and night.Discreet Trifold Wrapper, Neatly folded and individually wrapped for pocket-sized portability and hygienic disposal."}
+                    price={"329.0"}
+
+                    
+                    />
+
+
+
+
+                    {/* product 2 */}
+                    <ProductStructure 
+                    src={"https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/pfemisureMobile/mobileHomePageProductGraphene.jpg"}
+                    title={"Graphene AN-ION Pad"}
+                    badgeText={"pack of 15 pads"}
+                    text={"Graphene–AN-ION Core cools and helps maintain freshness while supporting odor control. 4-Wing Security ensures a secure fit with minimal shifting and reliable leak protection. Trifold Design keeps it compact, pocket-sized, and discreet for easy carry. Ultra-Absorbent Layers are breathable and quickly absorb and lock away moisture for all-day comfort."}
+                    price={"379.0"}
+                    />
+
+
+
+                    {/* product 3 */}
+                    <ProductStructure 
+                    src={"https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/pfemisureMobile/mobileHomePageProductPeriodPanty.jpg"}
+                    title={"AN-ION Period Panty"}
+                    badgeText={"pack of 5 pantie"}
+                    text={"Anion Period Panty is designed to feel just like your regular underwear but packs a super-absorbent, stain-proof core. Plus, our advanced anion technology stops odors in their tracks, so you stay fresh and cool"}
+                    price={"229.0"}
+                    />
                 </div>
 
 
@@ -136,19 +155,7 @@ const MobileHomePage = () => {
 
 
 
-                {/* product 2 */}
-
-
-
-
-
-
-
-
-
-
-
-                {/* product 3 */}
+                
 
 
 

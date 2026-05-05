@@ -3,6 +3,7 @@ import Image from 'next/image';
 import ProductStructure from '../mobileComponents/ProductStructure';
 import Heading from '@/My-components/commonComponents/Heading';
 import Paragraph from '@/My-components/commonComponents/Paragraph';
+import MobileFooter from '../mobileComponents/MobileFooter';
 
 
 const MobileHomePage = () => {
@@ -257,6 +258,13 @@ const MobileHomePage = () => {
 
 
 
+
+
+                {/* the contact us footer */}
+                <div>
+
+                    <MobileFooter/>
+                </div>
 
 
 

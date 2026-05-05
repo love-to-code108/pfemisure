@@ -6,6 +6,7 @@ import {
   Reddit_Sans
 } from 'next/font/google';
 import "./globals.css";
+import MobileNavigationBar from "@/My-components/Mobile/mobileComponents/MobileNavigationBar";
 
 
 const inter = Inter({
@@ -61,7 +62,14 @@ export default function RootLayout({ children }) {
       ${poppins.variable} 
       ${redditSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+
+        <MobileNavigationBar/>
+        <main>
+          {children}
+        </main>
+
+      </body>
     </html>
   );
 }

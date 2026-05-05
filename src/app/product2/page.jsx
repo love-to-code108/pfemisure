@@ -1,6 +1,7 @@
 import Heading from "@/My-components/commonComponents/Heading"
 import Paragraph from "@/My-components/commonComponents/Paragraph"
 import PurpleBadges from "@/My-components/commonComponents/PurpleBadges"
+import MobileFooter from "@/My-components/Mobile/mobileComponents/MobileFooter"
 import ProductStructure from "@/My-components/Mobile/mobileComponents/ProductStructure"
 
 
@@ -11,7 +12,7 @@ const Product2 = () => {
 
     return (
         <div>
-            <div className=" bg-white w-full flex flex-col justify-center
+            <div className=" bg-white w-full flex flex-col items-center
         px-[10px]">
 
 
@@ -107,6 +108,9 @@ const Product2 = () => {
 
 
             </div>
+
+
+            <MobileFooter/>
         </div>
     )
 }

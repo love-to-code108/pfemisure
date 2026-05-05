@@ -10,7 +10,7 @@ const Product1 = () => {
 
     return (
         <div>
-            <div className=" bg-white w-full flex flex-col justify-center
+            <div className=" bg-white w-full flex flex-col items-center
         px-[10px]
         ">
 

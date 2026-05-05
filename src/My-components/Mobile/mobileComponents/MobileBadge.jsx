@@ -4,7 +4,7 @@ const MobileBadge = ({ text }) => {
 
 
     return (
-        <div className=" bg-mainColour2 text-white text-sm
+        <div suppressHydrationWarning className=" bg-mainColour2 text-white text-sm
         px-[10px] py-[1px] flex items-center rounded-l-full
         h-[20px]
         ">

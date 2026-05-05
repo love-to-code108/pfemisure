@@ -7,6 +7,7 @@ import {
 } from 'next/font/google';
 import "./globals.css";
 import MobileNavigationBar from "@/My-components/Mobile/mobileComponents/MobileNavigationBar";
+import { Toaster } from "@/components/ui/sonner"
 
 
 const inter = Inter({
@@ -62,11 +63,12 @@ export default function RootLayout({ children }) {
       ${poppins.variable} 
       ${redditSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body suppressHydrationWarning className="min-h-full flex flex-col">
 
-        <MobileNavigationBar/>
+        <MobileNavigationBar />
         <main>
           {children}
+          <Toaster position="top-center" richColors />
         </main>
 
       </body>

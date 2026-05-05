@@ -1,8 +1,7 @@
-
 "use client"
 
 import Link from "next/link";
-import Image from "next/image";
+// import Image from "next/image";
 import { Heart, Menu, ShoppingCart, User } from "lucide-react";
 import {
     Sheet,
@@ -14,41 +13,7 @@ import {
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 
-function Nav() {
-    const navLinks = [
-        { name: "Home", href: "/home" },
-        { name: "AN-ION Pad", href: "/product1" },
-        { name: "Graphene Pad", href: "/product2" },
-        { name: "Period Panty", href: "/product3" },
-    ];
 
-    return (
-        <Sheet>
-
-            {/* 2. THE BUTTON: Clicking whatever is inside here toggles the state to 'true'. */}
-            <SheetTrigger>
-                <button>Open Menu</button>
-            </SheetTrigger>
-
-            {/* 3. THE DRAWER: This is the panel that slides in. 'side' controls direction. */}
-            <SheetContent side="right">
-
-                {/* 4. ACCESSIBILITY REQUIREMENT: Screen readers need a title to know what opened. */}
-                <SheetHeader>
-                    <SheetTitle>Navigation</SheetTitle>
-                </SheetHeader>
-
-                {/* 5. YOUR STUFF: Anything you put here shows up inside the drawer. */}
-                <div className="mt-4 flex flex-col gap-4">
-                    <a href="/home">Home</a>
-                    <a href="/products">Products</a>
-                </div>
-
-            </SheetContent>
-
-        </Sheet>
-    );
-}
 
 
 const MobileNavigationBar = () => {

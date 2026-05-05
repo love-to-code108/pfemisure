@@ -21,7 +21,7 @@ const MobileHomePage = () => {
 
 
                 {/* hero section  */}
-                <div className="w-full h-[100svh] bg-gradient-to-b from-[#FFCCFC] from-[87%] to-white
+                <div className="w-full h-[100svh] bg-gradient-to-b from-[#FFCCFC] from-[45%] to-white
                 
                 px-[10px]
                 ">

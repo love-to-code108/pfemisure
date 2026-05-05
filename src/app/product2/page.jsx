@@ -35,14 +35,17 @@ const Product2 = () => {
 
 
                 {/* Where Innovation Meets Everyday Comfort */}
-                <div>
+                <div className=" mb-[60px]">
+
+
+                    <img className="mb-[30px] rounded-md" src="https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/mobileProduct2PageImg/mobileProduct2Img1.png" alt="" />
 
 
                     <Heading>Where Innovation Meets Everyday Comfort</Heading>
 
                     <Paragraph>A thoughtfully engineered multi-layer design that works together to absorb quickly, lock moisture, and stay breathable—enhanced with graphene and AN-ION technology for a fresher, more comfortable experience.</Paragraph>
 
-                    <ul className=" list-disc px-[15px] mb-[30px]">
+                    <ul className=" list-disc px-[15px] mb-[30px] text-sm">
                         <li>Breathable top layer for soft, irritation-free feel</li>
                         <li>High-absorbency core for reliable protection</li>
                         <li>Graphene + AN-ION layer to help maintain freshness</li>
@@ -57,6 +60,50 @@ const Product2 = () => {
                         <PurpleBadges>Breathable Layers</PurpleBadges>
                     </div>
                 </div>
+
+
+
+
+                {/* Designed for Everyday Ease */}
+                <div className=" mb-[60px]">
+
+
+                    {/* image */}
+                    <img className=" mb-[30px] rounded-md" src="https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/mobileProduct2PageImg/mobileProduct2Img2.png" alt="" />
+
+
+
+                    <Heading>Designed for Everyday Ease</Heading>
+                    <Paragraph>From compact packaging to full-size protection, every detail is made to keep things simple, clean, and comfortable.</Paragraph>
+
+
+                    <div className=" w-full flex justify-end">
+                        <PurpleBadges>Waterproof</PurpleBadges>
+                    </div>
+                </div>
+
+
+
+
+
+                {/* all images one after the other */}
+                <div>
+                    
+                    <img className="mb-[10px] rounded-md" src="https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/mobileProduct2PageImg/mobileProduct2Img3.png" alt="" />
+
+
+                    <img className="mb-[10px] rounded-md" src="https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/mobileProduct2PageImg/mobileProduct2Img4.png" alt="" />
+
+
+                    <img className="mb-[10px] rounded-md" src="https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/mobileProduct2PageImg/mobileProduct2Img5.png" alt="" />
+
+
+
+
+
+
+                </div>
+
 
 
             </div>

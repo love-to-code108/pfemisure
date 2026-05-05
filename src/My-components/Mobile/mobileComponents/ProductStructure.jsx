@@ -8,6 +8,7 @@ import QuantityUpdate from "@/My-components/commonComponents/QuantityUpdate";
 import Button from "@/My-components/commonComponents/Button";
 import Wishlist from "@/My-components/commonComponents/Wishlist";
 import SizeGuide from "@/My-components/commonComponents/SizeGuide";
+import Paragraph from "@/My-components/commonComponents/Paragraph";
 
 
 const ProductStructure = ({ src, title, badgeText, text, price, productId }) => {
@@ -63,8 +64,9 @@ const ProductStructure = ({ src, title, badgeText, text, price, productId }) => 
 
             {/* product paragraph */}
             <div className=" mb-[30px]">
-                <p className=" text-black font-poppins
-                text-md leading-[18px]">{text}</p>
+                {/* <p className=" text-black font-poppins
+                text-md leading-[18px]">{text}</p> */}
+                <Paragraph>{text}</Paragraph>
             </div>
 
 

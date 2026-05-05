@@ -1,12 +1,13 @@
 import Image from "next/image";
 import pfemisureName from "../../../../public/pfemisureName.svg"
+import pfemisureLogo from "../../../../public/companyLogo.png"
 import { Mail, MapPin, Phone } from "lucide-react";
 
 const MobileFooter = () => {
 
 
     return (
-        <div className="w-full bg-mainColour px-[13px] pt-4 pb-1">
+        <div className="relative w-full bg-mainColour px-[13px] pt-4 pb-1">
 
 
             {/* company logo left side top */}
@@ -18,11 +19,11 @@ const MobileFooter = () => {
 
 
             {/* links right side */}
-            <div className=" w-full flex flex-col items-end text-white font-semibold mb-[30px] text-lg">
-                <p>Privacy Policy</p>
-                <p>Shipping Policy</p>
-                <p>Return & Refund Policy</p>
-                <p>Careers</p>
+            <div className=" w-full flex flex-col items-end text-white font-semibold mb-[30px] text-xl">
+                <p className=" mb-[8px]">Privacy Policy</p>
+                <p className=" mb-[8px]">Shipping Policy</p>
+                <p className=" mb-[8px]">Return & Refund Policy</p>
+                <p className=" mb-[8px]">Careers</p>
             </div>
 
 
@@ -38,18 +39,18 @@ const MobileFooter = () => {
                 <div className=" w-full flex text-white text-sm
                 mb-[20px]
                 ">
-                    <MapPin className=" w-[20px] mr-[8px]"/>
+                    <MapPin className=" w-[20px] mr-[8px]" />
 
                     <p>15/535 BAGHAJATIN PALLY <br />
                         CHINSURAH, NEAR BAGHAJATIN MATH, <br />
                         HOOGHLY - 713103 <br />
-                        </p>
+                    </p>
                 </div>
 
 
                 {/* phone number */}
                 <div className="w-full flex text-white text-sm items-center">
-                    <Phone className=" w-[15px] mr-[8px]"/>
+                    <Phone className=" w-[15px] mr-[8px]" />
                     <p>+91 9046241205</p>
                 </div>
 
@@ -58,7 +59,7 @@ const MobileFooter = () => {
                 {/* email */}
                 <div className=" w-full flex text-white text-sm items-center">
 
-                    <Mail className=" w-[15px] mr-[8px]"/>
+                    <Mail className=" w-[15px] mr-[8px]" />
                     <p>femisurepvtltd@gmail.com</p>
                 </div>
 
@@ -75,6 +76,15 @@ const MobileFooter = () => {
             <div className=" w-full flex justify-end text-white text-sm font-light">
                 <p>*Terms & Conditions</p>
             </div>
+
+
+
+            {/* the pfemisure logo in the background */}
+            <div className=" relative w-full flex justify-center">
+                <Image className=" absolute bottom-[30px]" src={pfemisureLogo} alt="" />
+            </div>
+
+
         </div>
     )
 }

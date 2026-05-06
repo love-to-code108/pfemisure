@@ -52,7 +52,7 @@ const MobileNavigationBar = () => {
             if(data.session){
                 setIsLoggedIn(true);
             }else{
-                setIsLoggedIn(false);
+                setIsLoggedIn(false); 
             }
         }
 

@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Profile {
+  id                 String   @id @db.Uuid
+  full_name          String?
+  email              String?
+  phone_number       String?
+  delivery_addresses String[] 
+  affiliate_code     String?  @unique
+
+  // New: A user can have many transactions
+  transactions       Transaction[]
+
+  @@map("profiles")
+}
+
+model Product {
+  // Automatically generates a secure UUID when a product is created
+  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String
+  price        Float
+  
+  // A product can show up in many transactions
+  transactions Transaction[]
+
+  @@map("products")
+}
+
+model Transaction {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  
+  // Automatically stamps the exact date and time of purchase
+  created_at     DateTime @default(now()) 
+  
+  // Who bought it? (Links to Profile)
+  profile_id     String   @db.Uuid
+  buyer          Profile  @relation(fields: [profile_id], references: [id])
+
+  // What did they buy? (Links to Product)
+  product_id     String   @db.Uuid
+  product        Product  @relation(fields: [product_id], references: [id])
+  
+  quantity       Int
+  affiliate_code String?  // Optional: Only filled if they have a affiliate_code
+  total_payment  Float
+
+  @@map("transactions")
+}

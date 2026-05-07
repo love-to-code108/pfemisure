@@ -1,23 +1,26 @@
 "use client"
 
 import { useState } from "react";
-import { Copy, Check } from "lucide-react";
+// Added LogOut icon and Next.js router
+import { Copy, Check, LogOut } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { createBrowserClient } from '@supabase/ssr';
 
-// Shadcn UI (Make sure you have these installed: npx shadcn@latest add input label button)
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-
-
-
-
-
-
+import { updateProfileData } from "@/app/actions/profileActions";
 
 export default function MobileUserProfile({ initialProfile }) {
+    const router = useRouter();
 
-    // We pad the addresses array so there are always exactly 3 inputs rendered
+    // Initialize Supabase to handle the logout on the client side
+    const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
+
     const defaultAddresses = initialProfile?.delivery_addresses || [];
     const paddedAddresses = [
         defaultAddresses[0] || "",
@@ -26,6 +29,7 @@ export default function MobileUserProfile({ initialProfile }) {
     ];
 
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [hasCopied, setHasCopied] = useState(false);
     const [formData, setFormData] = useState({
         full_name: initialProfile?.full_name || "",
@@ -51,7 +55,6 @@ export default function MobileUserProfile({ initialProfile }) {
         e.preventDefault();
         setIsLoading(true);
 
-        // Clean up empty addresses before sending to the database
         const cleanAddresses = formData.addresses.filter(addr => addr.trim() !== "");
 
         const dataToSave = {
@@ -60,14 +63,34 @@ export default function MobileUserProfile({ initialProfile }) {
             delivery_addresses: cleanAddresses,
         };
 
-        // TODO: Call your Server Action here to update Prisma!
-        console.log("Saving to database:", dataToSave);
+        const result = await updateProfileData(dataToSave);
         
-        // Simulate network delay for the UI
-        setTimeout(() => {
-            setIsLoading(false);
+        if (result.success) {
             toast.success("Profile updated successfully!");
-        }, 1000);
+        } else {
+            toast.error("Failed to save changes. Please try again.");
+        }
+        
+        setIsLoading(false);
+    };
+
+    // The new Logout Function
+    const handleLogout = async () => {
+        setIsLoggingOut(true);
+        
+        // 1. Tell Supabase to destroy the session cookie
+        const { error } = await supabase.auth.signOut();
+        
+        if (!error) {
+            toast.success("Logged out successfully");
+            // 2. Send them to the home page
+            router.push('/home');
+            // 3. CRUCIAL: Force Next.js to clear its server cache so it registers the missing cookie
+            router.refresh(); 
+        } else {
+            toast.error("Failed to log out.");
+            setIsLoggingOut(false);
+        }
     };
 
     return (
@@ -76,7 +99,6 @@ export default function MobileUserProfile({ initialProfile }) {
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                 
-                {/* Email (Read-Only because it comes from Auth) */}
                 <div className="flex flex-col gap-2">
                     <Label htmlFor="email" className="text-gray-600">Email Address</Label>
                     <Input 
@@ -87,7 +109,6 @@ export default function MobileUserProfile({ initialProfile }) {
                     />
                 </div>
 
-                {/* Full Name */}
                 <div className="flex flex-col gap-2">
                     <Label htmlFor="name" className="text-gray-600">Full Name</Label>
                     <Input 
@@ -98,7 +119,6 @@ export default function MobileUserProfile({ initialProfile }) {
                     />
                 </div>
 
-                {/* Phone Number */}
                 <div className="flex flex-col gap-2">
                     <Label htmlFor="phone" className="text-gray-600">Phone Number</Label>
                     <Input 
@@ -110,7 +130,6 @@ export default function MobileUserProfile({ initialProfile }) {
                     />
                 </div>
 
-                {/* Delivery Addresses (Max 3) */}
                 <div className="flex flex-col gap-3 mt-2">
                     <Label className="text-gray-600">Saved Delivery Addresses (Max 3)</Label>
                     {formData.addresses.map((address, index) => (
@@ -123,7 +142,6 @@ export default function MobileUserProfile({ initialProfile }) {
                     ))}
                 </div>
 
-                {/* Affiliate Code (Read-Only + Copy Button) */}
                 <div className="flex flex-col gap-2 mt-4 p-4 border border-purple-100 bg-purple-50 rounded-lg">
                     <Label className="text-purple-800 font-semibold">Your Affiliate Code</Label>
                     <div className="flex items-center gap-2">
@@ -145,14 +163,27 @@ export default function MobileUserProfile({ initialProfile }) {
                     <p className="text-xs text-purple-600 mt-1">Share this code with friends to earn rewards!</p>
                 </div>
 
-                {/* Submit Button */}
-                <Button 
-                    type="submit" 
-                    disabled={isLoading}
-                    className="w-full mt-4 bg-[#CF2DFF] hover:bg-[#b026d9] text-white py-6 text-lg font-semibold rounded-lg"
-                >
-                    {isLoading ? "Saving..." : "Save Changes"}
-                </Button>
+                <div className="flex flex-col gap-3 mt-4">
+                    <Button 
+                        type="submit" 
+                        disabled={isLoading}
+                        className="w-full bg-[#CF2DFF] hover:bg-[#b026d9] text-white py-6 text-lg font-semibold rounded-lg"
+                    >
+                        {isLoading ? "Saving..." : "Save Changes"}
+                    </Button>
+                    
+                    {/* The New Logout Button */}
+                    <Button 
+                        type="button"
+                        variant="outline"
+                        disabled={isLoggingOut}
+                        onClick={handleLogout}
+                        className="w-full py-6 text-lg font-semibold text-red-600 border-red-200 rounded-lg hover:bg-red-50 hover:text-red-700"
+                    >
+                        <LogOut className="w-5 h-5 mr-2" />
+                        {isLoggingOut ? "Logging out..." : "Log Out"}
+                    </Button>
+                </div>
             </form>
         </div>
     );

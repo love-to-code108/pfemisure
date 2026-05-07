@@ -9,13 +9,50 @@ import Button from "@/My-components/commonComponents/Button";
 import Wishlist from "@/My-components/commonComponents/Wishlist";
 import SizeGuide from "@/My-components/commonComponents/SizeGuide";
 import Paragraph from "@/My-components/commonComponents/Paragraph";
+import { useCartStore } from "@/store/useCartStore";
+import { toast } from "sonner"
 
 
-const ProductStructure = ({ src, title, badgeText, text, price, productId,sizeButtons,sizeChart = false }) => {
+const ProductStructure = ({ src, title, badgeText, text, price, productId, sizeButtons, sizeChart = false }) => {
 
 
 
-    const [size, setSize] = useState("medium")
+    const [size, setSize] = useState()
+    const [quantity, setQuanity] = useState(1)
+    const addToCart = useCartStore((state) => state.addToCart);
+
+    
+    
+
+    // handling add to cart
+    const handleAddToCart = () => {
+        // 1. Calculate the final price (handling the size multiplier you already built)
+        console.log(size);
+
+
+        // 2. Create the exact product object to store in Zustand
+        const productToAdd = {
+            id: productName, 
+            name: productName,
+            price: finalPrice,
+            size: sizeOptions ? selectedSize : null,
+            quantity: quantity,
+            image: images[0], 
+        };
+
+        // 3. Push to global state!
+        // addToCart(productToAdd);
+
+        // 4. Keep your existing toast
+        toast.success(`Added ${quantity} ${size} to cart`);
+    };
+
+
+
+
+
+
+
 
 
 
@@ -87,30 +124,42 @@ const ProductStructure = ({ src, title, badgeText, text, price, productId,sizeBu
 
 
                 {/* size buttons container */}
-                <SizeButtonGroup sizeButtons={sizeButtons} />
+                <SizeButtonGroup currentSize={size} setCurrentSize={setSize} sizeButtons={sizeButtons} />
             </div>
 
 
             {/* product quantity */}
             <div className=" w-full flex justify-start mb-[20px]">
-                <QuantityUpdate />
+                <QuantityUpdate 
+                quantityState={quantity}
+                setQuantityState={setQuanity}
+                />
             </div>
 
 
             {/* add to cart & buy now */}
             <div className="w-full flex justify-start mb-[30px]">
-                <Button size={"md"} className={"mr-[10px]"} type={"solid"} value={"Add to cart"}/>
-                <Button size={"md"} type={"outline-solid"} value={"Buy now"}/>
-                
+
+                {/* add to cart */}
+                <Button
+                    functionCall={handleAddToCart}
+                    size={"md"} className={"mr-[10px]"} type={"solid"} 
+                    value={"Add to cart"} />
+
+
+                {/* buy now */}
+                <Button
+                    size={"md"} type={"outline-solid"} value={"Buy now"} />
+
             </div>
 
 
             {/* add to wishlist & size guide */}
             <div className=" w-full flex">
-                <Wishlist/>
+                <Wishlist />
                 {
-                    sizeChart && <SizeGuide/>
-                }  
+                    sizeChart && <SizeGuide />
+                }
             </div>
 
 

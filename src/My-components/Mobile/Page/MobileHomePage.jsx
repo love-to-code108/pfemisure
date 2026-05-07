@@ -4,17 +4,33 @@ import ProductStructure from '../mobileComponents/ProductStructure';
 import Heading from '@/My-components/commonComponents/Heading';
 import Paragraph from '@/My-components/commonComponents/Paragraph';
 import MobileFooter from '../mobileComponents/MobileFooter';
+import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+
+
+
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+const prisma = new PrismaClient({ adapter });
+
 
 
 const MobileHomePage = () => {
+
+    prisma.product.findMany()
+    .then((value) => {
+        console.log("promise settled");
+        console.log(value)
+    })
+
+
+
+
 
 
 
     return (
         <div>
             <div className=' w-full flex flex-col bg-white'>
-
-
 
 
 
@@ -120,7 +136,7 @@ const MobileHomePage = () => {
                         badgeText={"pack of 15 pads"}
                         text={"Green Anion Technology: Embedded strip neutralizes odor, inhibits bacteria, and balances pH for lasting freshness through out all day and night.Discreet Trifold Wrapper, Neatly folded and individually wrapped for pocket-sized portability and hygienic disposal."}
                         price={"329.0"}
-                        sizeButtons={"large,xl,xxl,xxxl"}
+                        sizeButtons={"small,large,xl,xxl,xxxl"}
 
 
                     />

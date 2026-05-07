@@ -6,15 +6,33 @@ import Button from "./Button"
 const QuantityUpdate = ({ quantityState, setQuantityState }) => {
 
 
+    const increaseQuantity = () => {
+        setQuantityState((val) => ++val)
+    }
+
+
+    const decreateQuantity = () => {
+
+        if(quantityState > 1){
+            setQuantityState((val) => --val)
+        }
+    }
+
+
+
     return (
         <div className=" flex items-center w-[120px] justify-between">
             
-            <Button type={"rounded"} value={<MinusIcon className=""/>}/>
+            <Button
+            functionCall={decreateQuantity}
+            type={"rounded"} value={<MinusIcon className=""/>}/>
 
-            <p className=" text-2xl">1</p>
+            <p className=" text-2xl">{quantityState}</p>
 
             
-            <Button type={"rounded"} value={<PlusIcon className=""/>}/>
+            <Button
+            functionCall={increaseQuantity}
+            type={"rounded"} value={<PlusIcon className=""/>}/>
         </div>
         )
 

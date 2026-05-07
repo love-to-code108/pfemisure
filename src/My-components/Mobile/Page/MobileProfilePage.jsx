@@ -15,6 +15,8 @@ const adapter = new PrismaPg({
 // 2. Pass the adapter directly into the new Prisma V7 Client
 const prisma = new PrismaClient({ adapter });
 
+
+
 export default async function MobileProfilePage() {
     // 1. Get the cookies so Supabase can read the session
     const cookieStore = await cookies();

@@ -11,7 +11,7 @@ import SizeGuide from "@/My-components/commonComponents/SizeGuide";
 import Paragraph from "@/My-components/commonComponents/Paragraph";
 
 
-const ProductStructure = ({ src, title, badgeText, text, price, productId }) => {
+const ProductStructure = ({ src, title, badgeText, text, price, productId,sizeButtons,sizeChart = false }) => {
 
 
 
@@ -87,7 +87,7 @@ const ProductStructure = ({ src, title, badgeText, text, price, productId }) => 
 
 
                 {/* size buttons container */}
-                <SizeButtonGroup />
+                <SizeButtonGroup sizeButtons={sizeButtons} />
             </div>
 
 
@@ -108,7 +108,9 @@ const ProductStructure = ({ src, title, badgeText, text, price, productId }) => 
             {/* add to wishlist & size guide */}
             <div className=" w-full flex">
                 <Wishlist/>
-                <SizeGuide/>
+                {
+                    sizeChart && <SizeGuide/>
+                }  
             </div>
 
 

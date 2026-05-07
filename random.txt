@@ -48,3 +48,24 @@ alter table public.profiles add column affiliate_code text unique;
 
 
 alter table public.profiles drop constraint profiles_id_fkey;
+
+
+
+
+
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer set search_path = ''
+as $$
+begin
+  insert into public.profiles (id, full_name, email, affiliate_code)
+  values (
+    new.id, 
+    new.raw_user_meta_data ->> 'full_name', 
+    new.email,
+    upper(right(new.id::text, 6)) -- Grabs the last 6 chars and capitalizes them
+  );
+  return new;
+end;
+$$;

@@ -5,7 +5,7 @@ import { Heart, Menu, ShoppingCart, User } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebookSquare } from "react-icons/fa"; // Added for social buttons
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { createBrowserClient } from '@supabase/ssr'; // Added for auth
 
 // Shadcn Sheet
@@ -41,18 +41,22 @@ const MobileNavigationBar = () => {
     );
 
 
+    const router = useRouter();
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+
 
 
     // checking if the user is logged in or not
     useEffect(() => {
 
         const cookieChecker = async () => {
-            const {data , error} = await supabase.auth.getSession();
+            const { data, error } = await supabase.auth.getSession();
             // console.log(data)
-            if(data.session){
+            if (data.session) {
                 setIsLoggedIn(true);
-            }else{
-                setIsLoggedIn(false); 
+            } else {
+                setIsLoggedIn(false);
             }
         }
 
@@ -61,6 +65,19 @@ const MobileNavigationBar = () => {
     })
 
 
+
+
+
+    // handling profile icon click
+    const handleProfileIconClick = () => {
+        if (isLoggedIn) {
+            // Send them to the profile page
+            router.push('/profile');
+        } else {
+            // Open the Shadcn login dialog
+            setIsDialogOpen(true);
+        }
+    }
 
 
 
@@ -125,15 +142,21 @@ const MobileNavigationBar = () => {
                     <Heart color="#CF2DFF" />
                 </button>
 
+
+
+
+
+
+
+
+                {/* the profile icon */}
+                <button onClick={handleProfileIconClick} className=" relative">
+                    <User color="#CF2DFF" />
+                    <div className={` ${!isLoggedIn && "bg-red-500 w-[8px] h-[8px] rounded-full absolute top-0 right-[3px]"} `} />
+                </button>
+
                 {/* USER AUTH DIALOG */}
-                <Dialog>
-                    {/* The icon triggers the dialog */}
-                    <DialogTrigger asChild>
-                        <button className=" relative">
-                            <User color="#CF2DFF" />
-                            <div className={` ${!isLoggedIn && "bg-red-500 w-[8px] h-[8px] rounded-full absolute top-0 right-[3px]"} `} />
-                        </button>
-                    </DialogTrigger>
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
 
                     {/* The Dialog Popup */}
                     <DialogContent className="w-[90vw] max-w-[400px] rounded-xl bg-white p-6">
@@ -167,10 +190,29 @@ const MobileNavigationBar = () => {
                     </DialogContent>
                 </Dialog>
 
+
+
+
+
+
+
+
+
+
                 {/* cart */}
                 <button>
                     <ShoppingCart color="#CF2DFF" />
                 </button>
+
+
+
+
+
+
+
+
+
+
 
                 {/* hamburger menu button */}
                 <Sheet open={isOpen} onOpenChange={setIsOpen}>

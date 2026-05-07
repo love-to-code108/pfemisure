@@ -1,0 +1,71 @@
+-- Create a function that copies the email and name from Google/Facebook
+create function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer set search_path = ''
+as $$
+begin
+  insert into public.profiles (id, full_name, email)
+  values (
+    new.id, 
+    new.raw_user_meta_data ->> 'full_name', 
+    new.email
+  );
+  return new;
+end;
+$$;
+
+-- Tell Supabase to fire this function every time a new user signs up
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+
+
+
+
+
+
+
+
+
+  -- 1. Remove the old single-string address column
+alter table public.profiles drop column if exists delivery_address;
+
+-- 2. Add the new array column (defaults to an empty list)
+alter table public.profiles add column delivery_addresses text[] default '{}';
+
+-- 3. Enforce the "Max 3 Addresses" rule directly in the database engine
+alter table public.profiles add constraint max_addresses_check 
+check (array_length(delivery_addresses, 1) <= 3);
+
+-- 4. Add the affiliate code (it must be unique across the entire platform)
+alter table public.profiles add column affiliate_code text unique;
+
+
+
+
+
+
+
+alter table public.profiles drop constraint profiles_id_fkey;
+
+
+
+
+
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer set search_path = ''
+as $$
+begin
+  insert into public.profiles (id, full_name, email, affiliate_code)
+  values (
+    new.id, 
+    new.raw_user_meta_data ->> 'full_name', 
+    new.email,
+    upper(right(new.id::text, 6)) -- Grabs the last 6 chars and capitalizes them
+  );
+  return new;
+end;
+$$;

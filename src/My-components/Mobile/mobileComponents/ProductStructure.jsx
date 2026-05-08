@@ -32,14 +32,13 @@ const ProductStructure = ({ src, title, badgeText, text, price, productId, sizeB
 
         // 2. Create the exact product object to store in Zustand
         const productToAdd = {
-            id: productName, 
-            name: productName,
-            price: finalPrice,
-            size: sizeOptions ? selectedSize : null,
+            productId,
+            size: size,
             quantity: quantity,
-            image: images[0], 
+             
         };
 
+        console.log(productToAdd);
         // 3. Push to global state!
         // addToCart(productToAdd);
 

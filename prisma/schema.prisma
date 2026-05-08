@@ -25,6 +25,7 @@ model Product {
   id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name         String
   price        Float
+  productDetails String
   
   // A product can show up in many transactions
   transactions Transaction[]

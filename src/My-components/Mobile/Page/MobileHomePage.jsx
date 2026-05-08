@@ -1,27 +1,31 @@
+"use client"
 import { CircleArrowDown } from 'lucide-react';
-import Image from 'next/image';
 import ProductStructure from '../mobileComponents/ProductStructure';
 import Heading from '@/My-components/commonComponents/Heading';
 import Paragraph from '@/My-components/commonComponents/Paragraph';
 import MobileFooter from '../mobileComponents/MobileFooter';
-import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
+import getAllProducts from '@/actions/getAllProducts';
+import { useEffect, useState } from 'react';
 
-
-
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
-const prisma = new PrismaClient({ adapter });
 
 
 
 const MobileHomePage = () => {
 
-    prisma.product.findMany()
-    .then((value) => {
-        console.log("promise settled");
-        console.log(value)
-    })
+    const [productArray, setProductArray] = useState([]);
 
+
+    useEffect(() => {
+
+        const productDetails = async () => {
+            const productArray = await getAllProducts();
+            console.log(productArray);
+            setProductArray(productArray);
+        }
+        productDetails();
+
+
+    }, [])
 
 
 
@@ -130,42 +134,58 @@ const MobileHomePage = () => {
 
 
                     {/* product 1 */}
-                    <ProductStructure
-                        src={"https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/pfemisureMobile/mobileHomePageProductGreenIon.jpg"}
-                        title={"Green AN-ION Pad"}
-                        badgeText={"pack of 15 pads"}
-                        text={"Green Anion Technology: Embedded strip neutralizes odor, inhibits bacteria, and balances pH for lasting freshness through out all day and night.Discreet Trifold Wrapper, Neatly folded and individually wrapped for pocket-sized portability and hygienic disposal."}
-                        price={"329.0"}
-                        sizeButtons={"small,large,xl,xxl,xxxl"}
+                    {
+                        productArray?.[0] &&
+                        <ProductStructure
+                            src={"https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/pfemisureMobile/mobileHomePageProductGreenIon.jpg"}
+                            title={productArray[0].name}
+                            badgeText={"pack of 15 pads"}
+                            text={productArray[0].productDetails}
+                            price={productArray[0].price}
+                            sizeButtons={"large,xl,xxl,xxxl"}
+                            productId={productArray[0].id}
 
+                        />
+                    }
 
-                    />
 
 
 
 
                     {/* product 2 */}
-                    <ProductStructure
-                        src={"https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/pfemisureMobile/mobileHomePageProductGraphene.jpg"}
-                        title={"Graphene AN-ION Pad"}
-                        badgeText={"pack of 15 pads"}
-                        text={"Graphene–AN-ION Core cools and helps maintain freshness while supporting odor control. 4-Wing Security ensures a secure fit with minimal shifting and reliable leak protection. Trifold Design keeps it compact, pocket-sized, and discreet for easy carry. Ultra-Absorbent Layers are breathable and quickly absorb and lock away moisture for all-day comfort."}
-                        price={"379.0"}
-                        sizeButtons={"large,xl,xxl,xxxl"}
-                    />
+
+                    {
+                        productArray?.[1] &&
+                        <ProductStructure
+                            src={"https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/pfemisureMobile/mobileHomePageProductGraphene.jpg"}
+                            title={productArray[1].name}
+                            badgeText={"pack of 15 pads"}
+                            text={productArray[1].productDetails}
+                            price={productArray[1].price}
+                            sizeButtons={"large,xl,xxl,xxxl"}
+                            productId={productArray[1].id}
+                        />
+                    }
+
 
 
 
                     {/* product 3 */}
-                    <ProductStructure
-                        src={"https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/pfemisureMobile/mobileHomePageProductPeriodPanty.jpg"}
-                        title={"AN-ION Period Panty"}
-                        badgeText={"pack of 5 pantie"}
-                        text={"Anion Period Panty is designed to feel just like your regular underwear but packs a super-absorbent, stain-proof core. Plus, our advanced anion technology stops odors in their tracks, so you stay fresh and cool"}
-                        price={"229.0"}
-                        sizeChart={true}
-                        sizeButtons={"small,medium,large,xl,xxl,xxxl"}
-                    />
+
+                    {
+                        productArray?.[2] &&
+                        <ProductStructure
+                            src={"https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/pfemisureMobile/mobileHomePageProductPeriodPanty.jpg"}
+                            title={productArray[2].name}
+                            badgeText={"pack of 5 pantie"}
+                            text={productArray[2].productDetails}
+                            price={productArray[2].price}
+                            sizeChart={true}
+                            sizeButtons={"small,medium,large,xl,xxl,xxxl"}
+                            productId={productArray[2].id}
+                        />
+                    }
+
                 </div>
 
 
@@ -193,7 +213,7 @@ const MobileHomePage = () => {
 
                         <img className='rounded-md mb-[20px]' src="https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/pfemisureMobile/mobileHomePageImg1.jpg" alt="" />
 
-                        
+
 
                     </div>
 
@@ -206,7 +226,7 @@ const MobileHomePage = () => {
 
                         <img className=' rounded-md mb-[20px]' src="https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/pfemisureMobile/mobileHomePageImg2.jpg" alt="" />
 
-                        
+
                     </div>
 
 
@@ -221,14 +241,14 @@ const MobileHomePage = () => {
                         <img className=' rounded-md mb-[20px]' src="https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/pfemisureMobile/mobileHomePageImg3.jpg" alt="" />
 
 
-                        
+
 
                     </div>
 
 
 
 
-                
+
 
 
                     {/* engineered for real comfort */}
@@ -283,7 +303,7 @@ const MobileHomePage = () => {
                 {/* the contact us footer */}
                 <div>
 
-                    <MobileFooter/>
+                    <MobileFooter />
                 </div>
 
 

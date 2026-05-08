@@ -3,39 +3,108 @@
 import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/useCartStore";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, MapPin, CreditCard, AlertCircle } from "lucide-react";
+import { ArrowLeft, MapPin, CreditCard, AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+// Import our secure server action!
+import { createCheckoutSession } from "@/actions/checkoutActions"; 
 
 export default function CheckoutClient({ userProfile }) {
     const router = useRouter();
     const cart = useCartStore((state) => state.cart);
+    const clearCart = useCartStore((state) => state.clearCart); // Grab the clearCart function
     
-    // Fallback calculation just like the cart page
+    const [isProcessing, setIsProcessing] = useState(false); // New loading state
+
     const subtotal = cart.reduce((total, item) => {
         const activePrice = item.price || item.totalPrice || item.unitPrice || 0;
         return total + (activePrice * item.quantity);
     }, 0);
 
-    const deliveryFee = subtotal > 500 ? 0 : 50; // Example: Free delivery over ₹500
+    const deliveryFee = subtotal > 500 ? 0 : 50; 
     const finalTotal = subtotal + deliveryFee;
 
-    
-    
     const addresses = userProfile?.delivery_addresses || [];
     const hasPhone = Boolean(userProfile?.phone_number && userProfile.phone_number.trim() !== "");
-    // The master lock: they need BOTH to proceed
-    const isProfileComplete = addresses.length > 0 && hasPhone;
+    const isProfileComplete = addresses.length > 0 && hasPhone; 
 
     const [selectedAddress, setSelectedAddress] = useState(addresses[0] || "");
 
-    // Security check: If they somehow reach checkout with an empty cart, kick them back
     useEffect(() => {
         if (cart.length === 0) {
             router.push('/cart');
         }
     }, [cart, router]);
 
-    if (cart.length === 0) return null; // Prevent UI flash before redirect
+    // 1. Function to inject Razorpay into the browser
+    const loadRazorpayScript = () => {
+        return new Promise((resolve) => {
+            const script = document.createElement("script");
+            script.src = "https://checkout.razorpay.com/v1/checkout.js";
+            script.onload = () => resolve(true);
+            script.onerror = () => resolve(false);
+            document.body.appendChild(script);
+        });
+    };
+
+    // 2. The Main Payment Handler
+    const handlePayment = async () => {
+        setIsProcessing(true);
+
+        // Step A: Load the script
+        const isLoaded = await loadRazorpayScript();
+        if (!isLoaded) {
+            toast.error("Razorpay SDK failed to load. Are you online?");
+            setIsProcessing(false);
+            return;
+        }
+
+        // Step B: Call our secure Server Action
+        const result = await createCheckoutSession(cart, selectedAddress, userProfile.phone_number);
+
+        if (!result.success) {
+            toast.error(result.error || "Failed to initialize checkout");
+            setIsProcessing(false);
+            return;
+        }
+
+        // Step C: Configure Razorpay Window
+        const options = {
+            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, 
+            amount: result.amount, 
+            currency: result.currency,
+            name: "Pfemisure",
+            description: "Secure Checkout",
+            order_id: result.razorpayOrderId, 
+            handler: function (response) {
+                // Step D: What happens when they successfully pay!
+                console.log("Payment Success!", response);
+                toast.success("Payment Successful!");
+                clearCart(); // Empty their cart
+                router.push('/home'); // Route them home (or to a dedicated success page later)
+            },
+            prefill: {
+                name: userProfile?.full_name || "",
+                email: userProfile?.email || "",
+                contact: userProfile?.phone_number || ""
+            },
+            theme: {
+                color: "#CF2DFF" // Your brand purple!
+            }
+        };
+
+        // Step E: Pop it open!
+        const paymentObject = new window.Razorpay(options);
+        
+        paymentObject.on('payment.failed', function (response){
+            toast.error("Payment Failed or Cancelled.");
+            setIsProcessing(false);
+        });
+
+        paymentObject.open();
+    };
+
+    if (cart.length === 0) return null; 
 
     return (
         <div className="min-h-screen pb-32 bg-gray-50">
@@ -48,7 +117,7 @@ export default function CheckoutClient({ userProfile }) {
             </div>
 
             <div className="p-4 space-y-6">
-                {/* 1. Delivery Address Section */}
+                {/* Delivery Address Section */}
                 <section>
                     <h2 className="flex items-center gap-2 mb-3 text-lg font-bold text-gray-800">
                         <MapPin className="w-5 h-5 text-[#CF2DFF]" />
@@ -96,7 +165,7 @@ export default function CheckoutClient({ userProfile }) {
                                     <div>
                                         <p className="font-semibold text-gray-800">{userProfile?.full_name || "Delivery"}</p>
                                         <p className="text-sm text-gray-600 mt-1 leading-relaxed">{address}</p>
-                                        <p className="text-sm text-gray-500 mt-1">Phone: {userProfile?.phone_number || "Not provided"}</p>
+                                        <p className="text-sm text-gray-500 mt-1">Phone: {userProfile?.phone_number}</p>
                                     </div>
                                 </label>
                             ))}
@@ -104,7 +173,7 @@ export default function CheckoutClient({ userProfile }) {
                     )}
                 </section>
 
-                {/* 2. Order Summary Section */}
+                {/* Order Summary Section */}
                 <section>
                     <h2 className="mb-3 text-lg font-bold text-gray-800">Order Summary</h2>
                     <div className="p-4 bg-white border border-gray-100 rounded-xl">
@@ -122,7 +191,7 @@ export default function CheckoutClient({ userProfile }) {
                     </div>
                 </section>
 
-                {/* 3. Bill Details */}
+                {/* Bill Details */}
                 <section>
                     <h2 className="mb-3 text-lg font-bold text-gray-800">Bill Details</h2>
                     <div className="p-4 space-y-3 bg-white border border-gray-100 rounded-xl">
@@ -147,12 +216,21 @@ export default function CheckoutClient({ userProfile }) {
             {/* Sticky Payment Footer */}
             <div className="fixed bottom-[60px] left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
                 <Button 
-                    onClick={() => console.log("Initiating Payment Gateway...")}
-                    disabled={!isProfileComplete || !selectedAddress}
+                    onClick={handlePayment}
+                    disabled={!isProfileComplete || !selectedAddress || isProcessing}
                     className="w-full h-14 bg-[#CF2DFF] hover:bg-[#b026d9] text-white text-lg font-bold rounded-xl disabled:bg-gray-300 disabled:opacity-100"
                 >
-                    <CreditCard className="w-5 h-5 mr-2" />
-                    Pay ₹{finalTotal.toFixed(2)}
+                    {isProcessing ? (
+                        <>
+                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                            Processing...
+                        </>
+                    ) : (
+                        <>
+                            <CreditCard className="w-5 h-5 mr-2" />
+                            Pay ₹{finalTotal.toFixed(2)}
+                        </>
+                    )}
                 </Button>
             </div>
         </div>

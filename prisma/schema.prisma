@@ -5,7 +5,6 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
-
 model Profile {
   id                 String   @id @db.Uuid
   full_name          String?
@@ -14,43 +13,75 @@ model Profile {
   delivery_addresses String[] 
   affiliate_code     String?  @unique
 
-  // New: A user can have many transactions
-  transactions       Transaction[]
+  // Updated: A user can have many orders
+  orders             Order[]
 
   @@map("profiles")
 }
 
 model Product {
-  // Automatically generates a secure UUID when a product is created
-  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name         String
-  price        Float
-  productDetails String
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String
+  price           Float
+  productDetails  String
   productImageUrl String
   
-  // A product can show up in many transactions
-  transactions Transaction[]
+  // Updated: A product can appear in many order items
+  order_items     OrderItem[]
 
   @@map("products")
 }
 
-model Transaction {
-  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+// NEW: Represents the entire Cart/Checkout session
+model Order {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at          DateTime @default(now()) 
+  updated_at          DateTime @updatedAt
   
-  // Automatically stamps the exact date and time of purchase
-  created_at     DateTime @default(now()) 
-  
-  // Who bought it? (Links to Profile)
-  profile_id     String   @db.Uuid
-  buyer          Profile  @relation(fields: [profile_id], references: [id])
+  // Who bought it?
+  profile_id          String   @db.Uuid
+  buyer               Profile  @relation(fields: [profile_id], references: [id])
 
-  // What did they buy? (Links to Product)
-  product_id     String   @db.Uuid
-  product        Product  @relation(fields: [product_id], references: [id])
+  // Checkout Snapshot (Saves the exact address they chose)
+  delivery_address    String
+  contact_number      String
   
-  quantity       Int
-  affiliate_code String?  // Optional: Only filled if they have a affiliate_code
-  total_payment  Float
+  // Math & Discounts
+  total_amount        Float
+  affiliate_code      String?  
 
-  @@map("transactions")
+  // Razorpay Payment Tracking
+  payment_status      String   @default("PENDING") // PENDING, PAID, FAILED
+  order_status        String   @default("PROCESSING") // PROCESSING, SHIPPED, DELIVERED
+  razorpay_order_id   String?  @unique
+  razorpay_payment_id String?  @unique
+  razorpay_signature  String?
+
+  // The actual products in this order
+  items               OrderItem[]
+
+  @@map("orders")
+}
+
+// NEW: Represents individual products within the Cart
+model OrderItem {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  
+  // Which order does this belong to?
+  order_id    String   @db.Uuid
+  order       Order    @relation(fields: [order_id], references: [id], onDelete: Cascade)
+
+  // Which product is it?
+  product_id  String   @db.Uuid
+  product     Product  @relation(fields: [product_id], references: [id])
+
+  // Item details
+  quantity    Int
+  size        String?  // e.g., "XL", "XXL"
+  
+  // CRUCIAL: Save the price AT THE TIME OF PURCHASE. 
+  // If you change the product price next year, old receipts shouldn't change!
+  unit_price  Float    
+
+  @@map("order_items")
 }

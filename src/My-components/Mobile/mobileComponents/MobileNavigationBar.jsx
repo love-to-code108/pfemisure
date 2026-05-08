@@ -200,9 +200,9 @@ const MobileNavigationBar = () => {
 
 
                 {/* cart */}
-                <button>
+                <Link href={"/cart"}>
                     <ShoppingCart color="#CF2DFF" />
-                </button>
+                </Link>
 
 
 

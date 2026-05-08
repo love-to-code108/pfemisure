@@ -137,7 +137,7 @@ const MobileHomePage = () => {
                     {
                         productArray?.[0] &&
                         <ProductStructure
-                            src={"https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/pfemisureMobile/mobileHomePageProductGreenIon.jpg"}
+                            src={productArray[0].productImageUrl}
                             title={productArray[0].name}
                             badgeText={"pack of 15 pads"}
                             text={productArray[0].productDetails}
@@ -157,7 +157,7 @@ const MobileHomePage = () => {
                     {
                         productArray?.[1] &&
                         <ProductStructure
-                            src={"https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/pfemisureMobile/mobileHomePageProductGraphene.jpg"}
+                            src={productArray[1].productImageUrl}
                             title={productArray[1].name}
                             badgeText={"pack of 15 pads"}
                             text={productArray[1].productDetails}
@@ -175,7 +175,7 @@ const MobileHomePage = () => {
                     {
                         productArray?.[2] &&
                         <ProductStructure
-                            src={"https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/pfemisureMobile/mobileHomePageProductPeriodPanty.jpg"}
+                            src={productArray[2].productImageUrl}
                             title={productArray[2].name}
                             badgeText={"pack of 5 pantie"}
                             text={productArray[2].productDetails}

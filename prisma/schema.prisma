@@ -26,6 +26,7 @@ model Product {
   name         String
   price        Float
   productDetails String
+  productImageUrl String
   
   // A product can show up in many transactions
   transactions Transaction[]

@@ -29,18 +29,22 @@ const ProductStructure = ({ src, title, badgeText, text, price, productId, sizeB
         // 1. Calculate the final price (handling the size multiplier you already built)
         console.log(size);
 
+        
 
         // 2. Create the exact product object to store in Zustand
         const productToAdd = {
             productId,
+            productName:title,
             size: size,
             quantity: quantity,
-             
+            productImageUrl: src,
+            price,
+            
         };
 
         console.log(productToAdd);
         // 3. Push to global state!
-        // addToCart(productToAdd);
+        addToCart(productToAdd);
 
         // 4. Keep your existing toast
         toast.success(`Added ${quantity} ${size} to cart`);

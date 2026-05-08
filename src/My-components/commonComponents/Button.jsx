@@ -1,11 +1,13 @@
 "use client"
 
-const Button = ({ type,size, value, functionCall,className }) => {
+const Button = ({ type, changeType, size, value, functionCall, className }) => {
 
 
     // outline type button
     if(type === "outline"){
-        return(<button className={` text-black text-lg border-[2px] border-buttonGrey rounded-md
+        return(<button
+            onClick={() => functionCall(value , changeType)}
+            className={` text-black text-lg border-[2px] border-buttonGrey rounded-md
             px-[10px] py-[2px]
             
             ${size === "md" && "px-[20px] py-[5px]"}
@@ -18,7 +20,9 @@ const Button = ({ type,size, value, functionCall,className }) => {
 
     // outline type button
     else if(type === "outline-solid"){
-        return(<button className={` text-black text-lg border-[2px] border-mainColour2 rounded-md
+        return(<button 
+            onClick={() => functionCall({value})}
+            className={` text-black text-lg border-[2px] border-mainColour2 rounded-md
             px-[10px] py-[2px]
             
             ${size === "md" && "px-[20px] py-[5px]"}
@@ -32,7 +36,9 @@ const Button = ({ type,size, value, functionCall,className }) => {
 
     else if(type === "rounded"){
         return(
-            <button className={` rounded-full border-[2px] border-buttonGrey px-1 py-1
+            <button 
+            onClick={() => functionCall({value})}
+            className={` rounded-full border-[2px] border-buttonGrey px-1 py-1
             
             ${size === "md" && "px-[20px] py-[5px]"}
             ${className}`}>
@@ -43,7 +49,9 @@ const Button = ({ type,size, value, functionCall,className }) => {
 
 
     else if(type === "solid"){
-        return(<button className={` text-white text-lg rounded-md
+        return(<button 
+            onClick={() => functionCall({value})}
+            className={` text-white text-lg rounded-md
             px-[10px] py-[2px] bg-mainColour2
             
             ${size === "md" && "px-[20px] py-[5px]"}
@@ -54,10 +62,6 @@ const Button = ({ type,size, value, functionCall,className }) => {
 
 
     return (
-
-        
-
-
             <button className="">{value}</button>
     )
 }

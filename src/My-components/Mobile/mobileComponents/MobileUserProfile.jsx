@@ -10,7 +10,7 @@ import { createBrowserClient } from '@supabase/ssr';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { updateProfileData } from "@/app/actions/profileActions";
+import { updateProfileData } from "@/actions/profileActions";
 
 export default function MobileUserProfile({ initialProfile }) {
     const router = useRouter();

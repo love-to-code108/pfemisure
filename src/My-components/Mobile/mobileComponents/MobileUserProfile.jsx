@@ -12,8 +12,13 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { updateProfileData } from "@/actions/profileActions";
 
+import { useCartStore } from "@/store/useCartStore";
+
 export default function MobileUserProfile({ initialProfile }) {
     const router = useRouter();
+
+    const clearCart = useCartStore((state) => state.clearCart); 
+
     const supabase = createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -180,7 +185,9 @@ export default function MobileUserProfile({ initialProfile }) {
     const handleLogout = async () => {
         setIsLoggingOut(true);
         const { error } = await supabase.auth.signOut();
+        
         if (!error) {
+            clearCart(); // <--- WIPE THE CART!
             toast.success("Logged out successfully");
             router.push('/home');
             router.refresh(); 

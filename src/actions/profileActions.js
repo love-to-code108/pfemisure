@@ -19,18 +19,16 @@ export async function updateProfileData(formData) {
         { cookies: { getAll() { return cookieStore.getAll(); } } }
     );
 
-    const { data: { session } } = await supabase.auth.getSession();
+    // Ask the Supabase server to securely verify the cookie
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (authError || !user) {
         return { success: false, error: "Unauthorized access" };
     }
 
     try {
-        // 2. Push the updated data directly to Prisma using their secure Session ID
         await prisma.profile.update({
-            where: { 
-                id: session.user.id 
-            },
+            where: { id: user.id }, // <--- secure way
             data: {
                 full_name: formData.full_name,
                 phone_number: formData.phone_number,

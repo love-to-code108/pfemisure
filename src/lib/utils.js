@@ -7,4 +7,4 @@ export function cn(...inputs) {
 
 
 // The Global Affiliate Discount Percentage
-export const AFFILIATE_DISCOUNT_PERCENTAGE = 10;
+export const AFFILIATE_DISCOUNT_PERCENTAGE = 15;

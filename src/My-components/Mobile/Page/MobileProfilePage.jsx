@@ -33,18 +33,16 @@ export default async function MobileProfilePage() {
         }
     );
 
-    // 2. Ask Supabase securely who is currently logged in
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { user }, error } = await supabase.auth.getUser();
 
-    // 3. If they aren't logged in, kick them back to the home/login page
-    if (!session) {
+    if (error || !user) {
         redirect('/home');
     }
 
     // 4. Use Prisma to find their exact profile in the database using their secure UUID
     const userProfile = await prisma.profile.findUnique({
         where: {
-            id: session.user.id
+            id: user.id
         }
     });
 

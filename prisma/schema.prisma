@@ -49,6 +49,10 @@ model Order {
   // Math & Discounts
   total_amount        Float
   affiliate_code      String?  
+  
+  // NEW: Secure Financial Tracking
+  affiliate_commission Float    @default(0)
+  commission_paid      Boolean  @default(false)
 
   // Razorpay Payment Tracking
   payment_status      String   @default("PENDING") // PENDING, PAID, FAILED

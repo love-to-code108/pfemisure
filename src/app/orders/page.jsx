@@ -8,6 +8,13 @@ import OrdersClient from '@/My-components/Mobile/mobileComponents/OrdersClient';
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
+
+
+
+
+export const dynamic = 'force-dynamic';
+
+
 export default async function OrdersPage() {
     const cookieStore = await cookies();
     

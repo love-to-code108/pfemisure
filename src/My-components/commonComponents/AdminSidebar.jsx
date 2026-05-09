@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, ShoppingCart, Users, Package, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Users, LogOut } from "lucide-react";
 import { createBrowserClient } from '@supabase/ssr';
 import { toast } from "sonner";
 
@@ -14,12 +14,11 @@ export default function AdminSidebar() {
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     );
 
+    // Removed Products and Settings from this list!
     const navItems = [
         { name: "Dashboard", href: "/admin", icon: <LayoutDashboard className="w-5 h-5" /> },
         { name: "Orders & Logistics", href: "/admin/orders", icon: <ShoppingCart className="w-5 h-5" /> },
         { name: "Affiliate Payouts", href: "/admin/affiliates", icon: <Users className="w-5 h-5" /> },
-        { name: "Products", href: "/admin/products", icon: <Package className="w-5 h-5" /> },
-        { name: "Settings", href: "/admin/settings", icon: <Settings className="w-5 h-5" /> },
     ];
 
     const handleLogout = async () => {

@@ -239,6 +239,7 @@ const MobileNavigationBar = () => {
                                 <Link onClick={closingTheSheet} className={navbarLinkStyling("/product1")} href="/product1">Green AN-ION Pad</Link>
                                 <Link onClick={closingTheSheet} className={navbarLinkStyling("/product2")} href="/product2">Graphene AN-ION Pad</Link>
                                 <Link onClick={closingTheSheet} className={navbarLinkStyling("/product3")} href="/product3">AN-ION Period Panty</Link>
+                                <Link onClick={closingTheSheet} className={navbarLinkStyling("/affiliate")} href="/affiliate">Affiliate</Link>
                             </div>
                         </div>
                     </SheetContent>

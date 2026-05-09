@@ -10,7 +10,13 @@ export default function AffiliateClient({ referredOrders, myCode }) {
     const [hasCopied, setHasCopied] = useState(false);
 
     // Calculate Dashboard Metrics
-    const successfulOrders = referredOrders.filter(o => o.payment_status === "PAID" || o.payment_status === "SHIPPED" || o.payment_status === "PROCESSING");
+    // ADD "DELIVERED" TO THIS FILTER:
+    const successfulOrders = referredOrders.filter(o => 
+        o.payment_status === "PAID" || 
+        o.payment_status === "SHIPPED" || 
+        o.payment_status === "PROCESSING" || 
+        o.payment_status === "DELIVERED"
+    );
     
     // Calculate 10% of the total amount for legacy orders, or use the locked commission for new orders
     const totalEarnings = successfulOrders.reduce((sum, order) => {

@@ -159,7 +159,7 @@ const ProductStructure = ({ src, title, badgeText, text, price, productId, sizeB
 
             {/* add to wishlist & size guide */}
             <div className=" w-full flex">
-                <Wishlist />
+                
                 {
                     sizeChart && <SizeGuide />
                 }

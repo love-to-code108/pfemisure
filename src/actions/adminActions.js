@@ -33,7 +33,8 @@ export async function processAffiliatePayout(affiliateCode) {
             where: {
                 affiliate_code: affiliateCode,
                 commission_paid: false,
-                payment_status: { in: ["PAID", "PROCESSING", "SHIPPED"] }
+                // ADD "DELIVERED" HERE:
+                payment_status: { in: ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"] }
             },
             data: {
                 commission_paid: true

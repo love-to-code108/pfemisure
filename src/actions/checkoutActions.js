@@ -1,5 +1,3 @@
-
-
 "use server"
 
 import { createServerClient } from '@supabase/ssr';
@@ -8,6 +6,7 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
+import { AFFILIATE_DISCOUNT_PERCENTAGE } from "@/lib/utils"; // Make sure this is in your utils.js!
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
@@ -18,9 +17,8 @@ const razorpayInstance = new Razorpay({
     key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-export async function createCheckoutSession(cartItems, deliveryAddress, contactNumber) {
+export async function validateAffiliateCode(code) {
     try {
-        // 1. Verify User Session
         const cookieStore = await cookies();
         const supabase = createServerClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -28,19 +26,41 @@ export async function createCheckoutSession(cartItems, deliveryAddress, contactN
             { cookies: { getAll() { return cookieStore.getAll(); } } }
         );
 
-        // Ask the Supabase server to cryptographically verify the cookie
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return { success: false, error: "Unauthorized" };
+
+        // Check if the code exists
+        const profile = await prisma.profile.findUnique({
+            where: { affiliate_code: code.trim() } 
+        });
+
+        if (!profile) return { success: false, error: "Invalid affiliate code." };
+        if (profile.id === user.id) return { success: false, error: "You cannot use your own affiliate code!" };
+
+        return { success: true };
+    } catch (error) {
+        console.error("Affiliate Validation Error:", error);
+        return { success: false, error: "Failed to validate code." };
+    }
+}
+
+export async function createCheckoutSession(cartItems, deliveryAddress, contactNumber, appliedAffiliateCode = null) {
+    try {
+        const cookieStore = await cookies();
+        const supabase = createServerClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+            { cookies: { getAll() { return cookieStore.getAll(); } } }
+        );
+
         const { data: { user }, error: authError } = await supabase.auth.getUser();
-        
         if (authError || !user) throw new Error("Unauthorized access");
         const userId = user.id;
 
-        // 2. SECURITY CHECK: Recalculate the exact total on the server!
-        // We never trust the total price sent from the browser.
         let calculatedSubtotal = 0;
         const verifiedOrderItems = [];
 
         for (const item of cartItems) {
-            // Fetch the actual current price from the database
             const dbProduct = await prisma.product.findUnique({
                 where: { id: item.productId }
             });
@@ -53,15 +73,28 @@ export async function createCheckoutSession(cartItems, deliveryAddress, contactN
                 product_id: dbProduct.id,
                 quantity: item.quantity,
                 size: item.size,
-                unit_price: dbProduct.price // Freeze the price at checkout!
+                unit_price: dbProduct.price 
             });
         }
 
-        const deliveryFee = calculatedSubtotal > 500 ? 0 : 50;
-        const finalTotal = calculatedSubtotal + deliveryFee;
+        // --- NEW AFFILIATE MATH ---
+        let discountAmount = 0;
+        let validAffiliateCode = null;
 
-        // 3. Ask Razorpay to create an Order ID
-        // Razorpay expects the amount in PAISE (so we multiply by 100)
+        if (appliedAffiliateCode) {
+            const profile = await prisma.profile.findUnique({
+                where: { affiliate_code: appliedAffiliateCode }
+            });
+            if (profile && profile.id !== userId) {
+                validAffiliateCode = appliedAffiliateCode;
+                discountAmount = (calculatedSubtotal * AFFILIATE_DISCOUNT_PERCENTAGE) / 100;
+            }
+        }
+
+        const discountedSubtotal = calculatedSubtotal - discountAmount;
+        const deliveryFee = discountedSubtotal > 500 ? 0 : 50; 
+        const finalTotal = discountedSubtotal + deliveryFee;
+
         const razorpayOptions = {
             amount: Math.round(finalTotal * 100), 
             currency: "INR",
@@ -70,13 +103,13 @@ export async function createCheckoutSession(cartItems, deliveryAddress, contactN
 
         const razorpayOrder = await razorpayInstance.orders.create(razorpayOptions);
 
-        // 4. Create the PENDING order in our Database
         const newOrder = await prisma.order.create({
             data: {
                 profile_id: userId,
                 delivery_address: deliveryAddress,
                 contact_number: contactNumber,
                 total_amount: finalTotal,
+                affiliate_code: validAffiliateCode, // Save the applied code to the database!
                 razorpay_order_id: razorpayOrder.id,
                 payment_status: "PENDING",
                 items: {
@@ -85,7 +118,6 @@ export async function createCheckoutSession(cartItems, deliveryAddress, contactN
             }
         });
 
-        // 5. Send the keys to the frontend to pop open the payment window
         return {
             success: true,
             orderId: newOrder.id,
@@ -100,23 +132,18 @@ export async function createCheckoutSession(cartItems, deliveryAddress, contactN
     }
 }
 
-
-
 export async function verifyPaymentSignature(razorpayOrderId, razorpayPaymentId, razorpaySignature) {
     try {
         const secret = process.env.RAZORPAY_KEY_SECRET;
         
-        // 1. Create the exact string Razorpay expects us to hash
         const generatedSignature = crypto
             .createHmac("sha256", secret)
             .update(razorpayOrderId + "|" + razorpayPaymentId)
             .digest("hex");
 
-        // 2. Compare our generated lock with the lock they sent
         const isAuthentic = generatedSignature === razorpaySignature;
 
         if (!isAuthentic) {
-            // SECURITY BREACH: The payment was faked or tampered with!
             await prisma.order.update({
                 where: { razorpay_order_id: razorpayOrderId },
                 data: { payment_status: "FAILED" }
@@ -124,7 +151,6 @@ export async function verifyPaymentSignature(razorpayOrderId, razorpayPaymentId,
             return { success: false, error: "Invalid payment signature detected." };
         }
 
-        // 3. SUCCESS! The payment is real. Update the database officially.
         await prisma.order.update({
             where: { razorpay_order_id: razorpayOrderId },
             data: {

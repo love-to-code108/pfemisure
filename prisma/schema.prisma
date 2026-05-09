@@ -10,7 +10,7 @@ model Profile {
   full_name          String?
   email              String?
   phone_number       String?
-  delivery_addresses String[] 
+  delivery_addresses Json[]   @default([])
   affiliate_code     String?  @unique
 
   // Updated: A user can have many orders

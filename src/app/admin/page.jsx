@@ -11,7 +11,8 @@ export default async function AdminDashboard() {
         prisma.order.count(),
         prisma.order.count({ where: { payment_status: "PENDING" } }),
         prisma.order.aggregate({
-            where: { payment_status: { in: ["PAID", "PROCESSING", "SHIPPED"] } },
+            // ADD "DELIVERED" HERE:
+            where: { payment_status: { in: ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"] } }, 
             _sum: { total_amount: true }
         })
     ]);

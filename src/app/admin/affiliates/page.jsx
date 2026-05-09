@@ -19,7 +19,8 @@ export default async function AdminAffiliatesPage() {
         where: {
             affiliate_code: { not: null },
             commission_paid: false,
-            payment_status: { in: ["PAID", "PROCESSING", "SHIPPED"] } // Only pay for successful orders!
+            // ADD "DELIVERED" HERE:
+            payment_status: { in: ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"] } 
         },
         select: { affiliate_code: true, affiliate_commission: true }
     });

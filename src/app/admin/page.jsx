@@ -1,9 +1,17 @@
+
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { IndianRupee, Package, Clock, TrendingUp } from "lucide-react";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
+
+
+
+
+export const dynamic = 'force-dynamic';
+
+
 
 export default async function AdminDashboard() {
     // Fetch some quick stats for the overview

@@ -1,3 +1,4 @@
+
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -7,6 +8,12 @@ import AffiliateClient from '@/My-components/Mobile/mobileComponents/AffiliateCl
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
+
+
+
+export const dynamic = 'force-dynamic';
+
+
 
 export default async function AffiliatePage() {
     const cookieStore = await cookies();

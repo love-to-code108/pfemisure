@@ -30,11 +30,29 @@ export default function CheckoutClient({ userProfile }) {
     const deliveryFee = subtotal > 500 ? 0 : 50; 
     const finalTotal = subtotal + deliveryFee;
 
-    const addresses = userProfile?.delivery_addresses || [];
-    const hasPhone = Boolean(userProfile?.phone_number && userProfile.phone_number.trim() !== "");
-    const isProfileComplete = addresses.length > 0 && hasPhone; 
 
-    const [selectedAddress, setSelectedAddress] = useState(addresses[0] || "");
+    // --- New Address Parsing Logic ---
+    const rawAddresses = userProfile?.delivery_addresses || [];
+    
+    // Helper to format the object into a readable string
+    const formatAddress = (addr) => {
+        if (typeof addr === 'string') return addr; // Handle legacy strings
+        if (!addr) return "";
+        // If it's the new object format, combine it beautifully:
+        return `${addr.addressLine}, ${addr.city}, ${addr.state} - ${addr.pincode}`;
+    };
+
+
+    const formattedAddresses = rawAddresses.map(formatAddress).filter(addr => addr !== "");
+
+    const hasPhone = Boolean(userProfile?.phone_number && userProfile.phone_number.trim() !== "");
+    const isProfileComplete = formattedAddresses.length > 0 && hasPhone; 
+
+    // Store the formatted string in state!
+    const [selectedAddress, setSelectedAddress] = useState(formattedAddresses[0] || "");
+
+
+
 
     useEffect(() => {
         if (cart.length === 0) {
@@ -163,11 +181,11 @@ export default function CheckoutClient({ userProfile }) {
                         </div>
                     ) : (
                         <div className="space-y-3">
-                            {addresses.map((address, index) => (
+                            {formattedAddresses.map((formattedAddr, index) => (
                                 <label 
                                     key={index} 
                                     className={`flex items-start p-4 border rounded-xl cursor-pointer transition-colors ${
-                                        selectedAddress === address 
+                                        selectedAddress === formattedAddr 
                                             ? "border-[#CF2DFF] bg-purple-50/50" 
                                             : "border-gray-200 bg-white"
                                     }`}
@@ -175,14 +193,14 @@ export default function CheckoutClient({ userProfile }) {
                                     <input 
                                         type="radio" 
                                         name="address" 
-                                        value={address}
-                                        checked={selectedAddress === address}
+                                        value={formattedAddr}
+                                        checked={selectedAddress === formattedAddr}
                                         onChange={(e) => setSelectedAddress(e.target.value)}
                                         className="w-4 h-4 mt-1 mr-3 text-[#CF2DFF] focus:ring-[#CF2DFF]"
                                     />
                                     <div>
                                         <p className="font-semibold text-gray-800">{userProfile?.full_name || "Delivery"}</p>
-                                        <p className="text-sm text-gray-600 mt-1 leading-relaxed">{address}</p>
+                                        <p className="text-sm text-gray-600 mt-1 leading-relaxed">{formattedAddr}</p>
                                         <p className="text-sm text-gray-500 mt-1">Phone: {userProfile?.phone_number}</p>
                                     </div>
                                 </label>

@@ -11,7 +11,12 @@ export default function AffiliateClient({ referredOrders, myCode }) {
 
     // Calculate Dashboard Metrics
     const successfulOrders = referredOrders.filter(o => o.payment_status === "PAID" || o.payment_status === "SHIPPED" || o.payment_status === "PROCESSING");
-    const totalSalesGenerated = successfulOrders.reduce((sum, order) => sum + order.total_amount, 0);
+    
+    // Calculate 10% of the total amount for legacy orders, or use the locked commission for new orders
+    const totalEarnings = successfulOrders.reduce((sum, order) => {
+        const commission = order.affiliate_commission || (order.total_amount * 0.10);
+        return sum + commission;
+    }, 0);
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(myCode);
@@ -58,8 +63,8 @@ export default function AffiliateClient({ referredOrders, myCode }) {
                         <div className="w-10 h-10 bg-green-50 text-green-600 rounded-full flex items-center justify-center mb-2">
                             <TrendingUp className="w-5 h-5" />
                         </div>
-                        <p className="text-xs text-gray-500 font-medium">Sales Generated</p>
-                        <p className="text-xl font-black text-gray-800">₹{totalSalesGenerated.toFixed(0)}</p>
+                        <p className="text-xs text-gray-500 font-medium">Your Earnings (10%)</p>
+                        <p className="text-xl font-black text-green-600">₹{totalEarnings.toFixed(0)}</p>
                     </div>
                 </div>
 
@@ -83,7 +88,10 @@ export default function AffiliateClient({ referredOrders, myCode }) {
                                         </p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-sm font-bold text-gray-800">₹{order.total_amount.toFixed(0)}</p>
+                                        {/* Show their 10% cut instead of the total order value */}
+                                        <p className="text-sm font-bold text-green-600">
+                                            + ₹{(order.affiliate_commission || (order.total_amount * 0.10)).toFixed(0)}
+                                        </p>
                                         <p className={`text-[10px] font-bold uppercase tracking-wider mt-1 ${
                                             order.payment_status === "PAID" ? "text-green-600" :
                                             order.payment_status === "FAILED" ? "text-red-500" : "text-orange-500"

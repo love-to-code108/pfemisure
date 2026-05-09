@@ -95,6 +95,9 @@ export async function createCheckoutSession(cartItems, deliveryAddress, contactN
         const deliveryFee = discountedSubtotal > 500 ? 0 : 50; 
         const finalTotal = discountedSubtotal + deliveryFee;
 
+        const earnedCommission = validAffiliateCode ? (discountedSubtotal * 0.10) : 0;
+
+
         const razorpayOptions = {
             amount: Math.round(finalTotal * 100), 
             currency: "INR",
@@ -110,6 +113,7 @@ export async function createCheckoutSession(cartItems, deliveryAddress, contactN
                 contact_number: contactNumber,
                 total_amount: finalTotal,
                 affiliate_code: validAffiliateCode, // Save the applied code to the database!
+                affiliate_commission: earnedCommission,
                 razorpay_order_id: razorpayOrder.id,
                 payment_status: "PENDING",
                 items: {
@@ -131,6 +135,8 @@ export async function createCheckoutSession(cartItems, deliveryAddress, contactN
         return { success: false, error: error.message };
     }
 }
+
+
 
 export async function verifyPaymentSignature(razorpayOrderId, razorpayPaymentId, razorpaySignature) {
     try {

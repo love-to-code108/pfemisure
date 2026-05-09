@@ -7,6 +7,7 @@ import { FaFacebookSquare } from "react-icons/fa"; // Added for social buttons
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { createBrowserClient } from '@supabase/ssr'; // Added for auth
+import { Package } from "lucide-react";
 
 // Shadcn Sheet
 import {
@@ -137,9 +138,14 @@ const MobileNavigationBar = () => {
 
             <div className="flex justify-between w-[300px]">
 
-                {/* wishlist */}
-                <button>
-                    <Heart color="#CF2DFF" />
+
+                {/* orders */}
+                <button
+                    onClick={() => router.push('/orders')}
+                    
+                >
+                    <Package color="#CF2DFF" className="w-6 h-6" />
+                    
                 </button>
 
 

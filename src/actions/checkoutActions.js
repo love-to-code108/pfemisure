@@ -166,3 +166,20 @@ export async function verifyPaymentSignature(razorpayOrderId, razorpayPaymentId,
         return { success: false, error: "Internal verification failed." };
     }
 }
+
+
+
+// Add this at the bottom of src/actions/checkoutActions.js
+
+export async function markOrderAsFailed(orderId) {
+    try {
+        await prisma.order.update({
+            where: { id: orderId },
+            data: { payment_status: "FAILED" }
+        });
+        return { success: true };
+    } catch (error) {
+        console.error("Error marking order as failed:", error);
+        return { success: false };
+    }
+}

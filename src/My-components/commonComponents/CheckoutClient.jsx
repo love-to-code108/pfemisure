@@ -11,8 +11,9 @@ import { AFFILIATE_DISCOUNT_PERCENTAGE } from "@/lib/utils";
 
 
 
+
 // Import our secure server action!
-import { createCheckoutSession, verifyPaymentSignature, validateAffiliateCode } from "@/actions/checkoutActions";
+import { createCheckoutSession, verifyPaymentSignature, validateAffiliateCode, markOrderAsFailed } from "@/actions/checkoutActions";
 
 
 
@@ -100,6 +101,7 @@ export default function CheckoutClient({ userProfile }) {
         });
     };
 
+    
     // 2. The Main Payment Handler
     const handlePayment = async () => {
         setIsProcessing(true);
@@ -123,14 +125,14 @@ export default function CheckoutClient({ userProfile }) {
 
         // Step C: Configure Razorpay Window
         const options = {
-            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-            amount: result.amount,
+            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, 
+            amount: result.amount, 
             currency: result.currency,
             name: "Pfemisure",
             description: "Secure Checkout",
-            order_id: result.razorpayOrderId,
+            order_id: result.razorpayOrderId, 
             handler: async function (response) {
-                // Razorpay gave us the success keys. Now we silently verify them on our backend.
+                // Step D: Success Verification
                 const verifyResult = await verifyPaymentSignature(
                     response.razorpay_order_id,
                     response.razorpay_payment_id,
@@ -138,12 +140,10 @@ export default function CheckoutClient({ userProfile }) {
                 );
 
                 if (verifyResult.success) {
-                    // The backend confirmed it's real!
                     toast.success("Payment Successful & Verified!");
-                    clearCart();
-                    router.push('/home');
+                    clearCart(); 
+                    router.push('/orders'); 
                 } else {
-                    // Someone tried to spoof the payment, or the network dropped
                     toast.error("Payment verification failed! Please contact support.");
                     setIsProcessing(false);
                 }
@@ -154,18 +154,29 @@ export default function CheckoutClient({ userProfile }) {
                 contact: userProfile?.phone_number || ""
             },
             theme: {
-                color: "#CF2DFF" // Your brand purple!
+                color: "#CF2DFF" 
+            },
+            // Catch when the user manually closes the window with the 'X'
+            modal: {
+                ondismiss: async function() {
+                    setIsProcessing(false); 
+                    toast.error("Payment cancelled by user.");
+                    await markOrderAsFailed(result.orderId); 
+                }
             }
         };
 
-        // Step E: Pop it open!
+        // Step E: Create the Razorpay Object! (This was the missing line causing the crash)
         const paymentObject = new window.Razorpay(options);
-
-        paymentObject.on('payment.failed', function (response) {
-            toast.error("Payment Failed or Cancelled.");
-            setIsProcessing(false);
+        
+        // Step F: Catch when the bank declines the card
+        paymentObject.on('payment.failed', async function (response) {
+            setIsProcessing(false); 
+            toast.error(response.error.description || "Payment Failed.");
+            await markOrderAsFailed(result.orderId);
         });
 
+        // Step G: Pop it open!
         paymentObject.open();
     };
 

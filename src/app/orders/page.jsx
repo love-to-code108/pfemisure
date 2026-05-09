@@ -33,12 +33,15 @@ export default async function OrdersPage() {
 
     // 2. Fetch all orders for this specific user
     const userOrders = await prisma.order.findMany({
-        where: { profile_id: user.id },
+        where: { 
+            profile_id: user.id,
+            payment_status: { not: "PENDING" } // <--- THE MAGIC FIX
+        },
         orderBy: { created_at: 'desc' }, // Newest orders at the top!
         include: {
             items: {
                 include: {
-                    product: true // This grabs the image and name of the actual product
+                    product: true 
                 }
             }
         }

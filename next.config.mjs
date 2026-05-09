@@ -7,11 +7,21 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'diwhqxynbnsxewewvxyy.supabase.co', // Replace with your actual Supabase URL
+        hostname: 'diwhqxynbnsxewewvxyy.supabase.co', 
         port: '',
         pathname: '/storage/v1/object/public/**',
       },
     ],
+  },
+  // NEW: The Root Redirect
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/home',
+        permanent: true,
+      },
+    ];
   },
 };
 

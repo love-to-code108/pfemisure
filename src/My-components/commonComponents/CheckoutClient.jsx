@@ -8,6 +8,12 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 // Import our secure server action!
 import { createCheckoutSession } from "@/actions/checkoutActions"; 
+import { verifyPaymentSignature } from "@/actions/checkoutActions";
+
+
+
+
+
 
 export default function CheckoutClient({ userProfile }) {
     const router = useRouter();
@@ -76,12 +82,24 @@ export default function CheckoutClient({ userProfile }) {
             name: "Pfemisure",
             description: "Secure Checkout",
             order_id: result.razorpayOrderId, 
-            handler: function (response) {
-                // Step D: What happens when they successfully pay!
-                console.log("Payment Success!", response);
-                toast.success("Payment Successful!");
-                clearCart(); // Empty their cart
-                router.push('/home'); // Route them home (or to a dedicated success page later)
+            handler: async function (response) {
+                // Razorpay gave us the success keys. Now we silently verify them on our backend.
+                const verifyResult = await verifyPaymentSignature(
+                    response.razorpay_order_id,
+                    response.razorpay_payment_id,
+                    response.razorpay_signature
+                );
+
+                if (verifyResult.success) {
+                    // The backend confirmed it's real!
+                    toast.success("Payment Successful & Verified!");
+                    clearCart(); 
+                    router.push('/home'); 
+                } else {
+                    // Someone tried to spoof the payment, or the network dropped
+                    toast.error("Payment verification failed! Please contact support.");
+                    setIsProcessing(false);
+                }
             },
             prefill: {
                 name: userProfile?.full_name || "",

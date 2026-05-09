@@ -7,6 +7,7 @@ import { cookies } from 'next/headers';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import Razorpay from 'razorpay';
+import crypto from 'crypto';
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
@@ -96,5 +97,46 @@ export async function createCheckoutSession(cartItems, deliveryAddress, contactN
     } catch (error) {
         console.error("Checkout Initialization Error:", error);
         return { success: false, error: error.message };
+    }
+}
+
+
+
+export async function verifyPaymentSignature(razorpayOrderId, razorpayPaymentId, razorpaySignature) {
+    try {
+        const secret = process.env.RAZORPAY_KEY_SECRET;
+        
+        // 1. Create the exact string Razorpay expects us to hash
+        const generatedSignature = crypto
+            .createHmac("sha256", secret)
+            .update(razorpayOrderId + "|" + razorpayPaymentId)
+            .digest("hex");
+
+        // 2. Compare our generated lock with the lock they sent
+        const isAuthentic = generatedSignature === razorpaySignature;
+
+        if (!isAuthentic) {
+            // SECURITY BREACH: The payment was faked or tampered with!
+            await prisma.order.update({
+                where: { razorpay_order_id: razorpayOrderId },
+                data: { payment_status: "FAILED" }
+            });
+            return { success: false, error: "Invalid payment signature detected." };
+        }
+
+        // 3. SUCCESS! The payment is real. Update the database officially.
+        await prisma.order.update({
+            where: { razorpay_order_id: razorpayOrderId },
+            data: {
+                payment_status: "PAID",
+                razorpay_payment_id: razorpayPaymentId,
+                razorpay_signature: razorpaySignature
+            }
+        });
+
+        return { success: true };
+    } catch (error) {
+        console.error("Verification Error:", error);
+        return { success: false, error: "Internal verification failed." };
     }
 }

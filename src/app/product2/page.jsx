@@ -27,6 +27,7 @@ const Product2 = () => {
                     badgeText={"pack of 15 pads"}
                     text={"Graphene–AN-ION Core cools and helps maintain freshness while supporting odor control. 4-Wing Security ensures a secure fit with minimal shifting and reliable leak protection. Trifold Design keeps it compact, pocket-sized, and discreet for easy carry. Ultra-Absorbent Layers are breathable and quickly absorb and lock away moisture for all-day comfort."}
                     price={"379.0"}
+                    sizeButtons={"large,xl,xxl,xxxl"}
                 />
 
 

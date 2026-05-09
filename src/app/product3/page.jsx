@@ -22,6 +22,7 @@ const Product3 = () => {
                     badgeText={"pack of 5 pantie"}
                     text={"Anion Period Panty is designed to feel just like your regular underwear but packs a super-absorbent, stain-proof core. Plus, our advanced anion technology stops odors in their tracks, so you stay fresh and cool"}
                     price={"229.0"}
+                    sizeButtons={"small,medium,large,xl,xxl,xxxl"}
                 />
 
 

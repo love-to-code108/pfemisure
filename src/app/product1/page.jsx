@@ -22,6 +22,7 @@ const Product1 = () => {
                     badgeText={"pack of 15 pads"}
                     text={"Green Anion Technology: Embedded strip neutralizes odor, inhibits bacteria, and balances pH for lasting freshness through out all day and night.Discreet Trifold Wrapper, Neatly folded and individually wrapped for pocket-sized portability and hygienic disposal."}
                     price={"329.0"}
+                    sizeButtons={"large,xl,xxl,xxxl"}
 
 
                 />

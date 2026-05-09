@@ -15,6 +15,7 @@ model Profile {
 
   // Updated: A user can have many orders
   orders             Order[]
+  role               String   @default("USER")
 
   @@map("profiles")
 }

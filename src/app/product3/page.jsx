@@ -56,8 +56,8 @@ const Product3 = () => {
 
 
 
-
-                <div>
+                
+                <div className=" max-w-[400px]">
                     <img className=" mb-[10px] rounded-md" src="https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/mobileProduct3PageImg/mobileProduct3Img1.png" alt="" />
 
 

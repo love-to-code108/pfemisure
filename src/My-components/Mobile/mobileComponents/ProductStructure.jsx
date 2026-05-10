@@ -66,7 +66,7 @@ const ProductStructure = ({ src, title, badgeText, text, price, productId, sizeB
     };
 
     return (
-        <div className="flex flex-col items-center xs:max-w-[360px] mb-[100px]">
+        <div className="flex flex-col items-center xs:max-w-[360px] mb-[80px] mt-[10px]">
             {/* product image */}
             <div className="w-full">
                 <img src={src} alt="" />

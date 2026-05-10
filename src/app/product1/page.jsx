@@ -62,24 +62,24 @@ const Product1 = () => {
 
 
 
+                <div className=" max-w-[400px]">
+                    {/* Engineered for Everyday Comfort */}
+                    <div className=" mb-[60px] ">
 
-                {/* Engineered for Everyday Comfort */}
-                <div className=" mb-[60px]">
-
-                    {/* product 1 image 1 */}
-                    <img className=" mb-[30px] rounded-md" src="https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/mobileProduct1PageImg/mobileProduct1Img1.png" alt="" />
+                        {/* product 1 image 1 */}
+                        <img className=" mb-[30px] rounded-md" src="https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/mobileProduct1PageImg/mobileProduct1Img1.png" alt="" />
 
 
 
-                    <Heading>Engineered for Everyday Comfort</Heading>
-                    <Paragraph>A multi-layer design that absorbs quickly, locks moisture, and stays breathable—so you feel dry, fresh, and protected all day.</Paragraph>
+                        <Heading>Engineered for Everyday Comfort</Heading>
+                        <Paragraph>A multi-layer design that absorbs quickly, locks moisture, and stays breathable—so you feel dry, fresh, and protected all day.</Paragraph>
 
-                    <div className=" flex flex-col items-start">
-                        <PurpleBadges>Breathable</PurpleBadges>
-                        <PurpleBadges>High Absorbency</PurpleBadges>
-                        <PurpleBadges>Leak Protection</PurpleBadges>
+                        <div className=" flex flex-col items-start">
+                            <PurpleBadges>Breathable</PurpleBadges>
+                            <PurpleBadges>High Absorbency</PurpleBadges>
+                            <PurpleBadges>Leak Protection</PurpleBadges>
+                        </div>
                     </div>
-                </div>
 
 
 
@@ -91,29 +91,31 @@ const Product1 = () => {
 
 
 
-                {/* Compact When You Need It. Powerful When You Use It. */}
-                <div className=" mb-[60px]">
+                    {/* Compact When You Need It. Powerful When You Use It. */}
+                    <div className=" mb-[60px]">
 
-                    <img className=" mb-[30px] rounded-md" src="https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/mobileProduct1PageImg/mobileProduct1Img2.png" alt="" />
-
-
-                    <Heading>Compact When You Need It. Powerful When You Use It.</Heading>
-                    <Paragraph>A multi-layer design that absorbs quickly, locks moisture, and stays breathable—so you feel dry, fresh, and protected all day.</Paragraph>
+                        <img className=" mb-[30px] rounded-md" src="https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/mobileProduct1PageImg/mobileProduct1Img2.png" alt="" />
 
 
-                    <div className=" w-full flex justify-end">
-                        <PurpleBadges>Waterproof</PurpleBadges>
+                        <Heading>Compact When You Need It. Powerful When You Use It.</Heading>
+                        <Paragraph>A multi-layer design that absorbs quickly, locks moisture, and stays breathable—so you feel dry, fresh, and protected all day.</Paragraph>
+
+
+                        <div className=" w-full flex justify-end">
+                            <PurpleBadges>Waterproof</PurpleBadges>
+                        </div>
                     </div>
-                </div>
 
 
 
 
 
-                <div className=" mb-[60px]">
-                    <img className=" mb-[10px] rounded-md" src="https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/mobileProduct1PageImg/mobileProduct1Img3.png" alt="" />
+                    <div className=" mb-[60px]">
+                        <img className=" mb-[10px] rounded-md" src="https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/mobileProduct1PageImg/mobileProduct1Img3.png" alt="" />
 
-                    <img className="  rounded-md" src="https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/mobileProduct1PageImg/mobileProduct1Img4.png" alt="" />
+                        <img className="  rounded-md" src="https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/mobileProduct1PageImg/mobileProduct1Img4.png" alt="" />
+                    </div>
+
                 </div>
 
 

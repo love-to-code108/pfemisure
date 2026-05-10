@@ -8,12 +8,7 @@ import OrdersClient from '@/My-components/Mobile/mobileComponents/OrdersClient';
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
-
-
-
-
 export const dynamic = 'force-dynamic';
-
 
 export default async function OrdersPage() {
     const cookieStore = await cookies();
@@ -31,17 +26,20 @@ export default async function OrdersPage() {
         redirect('/home'); // Kick unauthenticated users out
     }
 
-    // 2. Fetch all orders for this specific user
+    // 2. Fetch ONLY successful orders for this specific user
     const userOrders = await prisma.order.findMany({
         where: { 
             profile_id: user.id,
-            payment_status: { not: "PENDING" } // <--- THE MAGIC FIX
+            // Only pull orders that actually went through!
+            payment_status: {
+                in: ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"]
+            }
         },
         orderBy: { created_at: 'desc' }, // Newest orders at the top!
         include: {
             items: {
                 include: {
-                    product: true 
+                    product: true // This grabs the image and name of the actual product
                 }
             }
         }

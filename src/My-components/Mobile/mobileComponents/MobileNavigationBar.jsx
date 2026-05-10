@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { createBrowserClient } from '@supabase/ssr'; // Added for auth
 import { Package } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 // Shadcn Sheet
 import {
@@ -44,7 +45,7 @@ const MobileNavigationBar = () => {
 
     const router = useRouter();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+    const [authLoading, setAuthLoading] = useState(null);
 
 
 
@@ -87,6 +88,7 @@ const MobileNavigationBar = () => {
 
     // Auth Handlers
     const handleGoogleLogin = async () => {
+        setAuthLoading('google'); // Disable buttons & show spinner
         await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
@@ -96,6 +98,7 @@ const MobileNavigationBar = () => {
     };
 
     const handleFacebookLogin = async () => {
+        setAuthLoading('facebook'); // Disable buttons & show spinner
         await supabase.auth.signInWithOAuth({
             provider: 'facebook',
             options: {
@@ -182,18 +185,28 @@ const MobileNavigationBar = () => {
                         <div className="flex flex-col gap-3 font-poppins">
                             <button
                                 onClick={handleGoogleLogin}
-                                className="w-full flex items-center justify-center gap-3 py-3 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                                disabled={authLoading !== null} // Disable if ANY auth is loading
+                                className="w-full flex items-center justify-center gap-3 py-3 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                <FcGoogle className="w-5 h-5 text-blue-500" />
-                                Continue with Google
+                                {authLoading === 'google' ? (
+                                    <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+                                ) : (
+                                    <FcGoogle className="w-5 h-5" />
+                                )}
+                                {authLoading === 'google' ? "Connecting..." : "Continue with Google"}
                             </button>
 
                             <button
                                 onClick={handleFacebookLogin}
-                                className="w-full flex items-center justify-center gap-3 py-3 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                                disabled={authLoading !== null} // Disable if ANY auth is loading
+                                className="w-full flex items-center justify-center gap-3 py-3 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                <FaFacebookSquare className="w-5 h-5 text-blue-600" />
-                                Continue with Facebook
+                                {authLoading === 'facebook' ? (
+                                    <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+                                ) : (
+                                    <FaFacebookSquare className="w-5 h-5 text-blue-600" />
+                                )}
+                                {authLoading === 'facebook' ? "Connecting..." : "Continue with Facebook"}
                             </button>
                         </div>
                     </DialogContent>

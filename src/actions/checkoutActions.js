@@ -6,7 +6,7 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
-import { AFFILIATE_DISCOUNT_PERCENTAGE } from "@/lib/utils"; // Make sure this is in your utils.js!
+import { AFFILIATE_DISCOUNT_PERCENTAGE } from "@/lib/utils";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
@@ -29,7 +29,6 @@ export async function validateAffiliateCode(code) {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return { success: false, error: "Unauthorized" };
 
-        // Check if the code exists
         const profile = await prisma.profile.findUnique({
             where: { affiliate_code: code.trim() } 
         });
@@ -66,18 +65,27 @@ export async function createCheckoutSession(cartItems, deliveryAddress, contactN
             });
 
             if (!dbProduct) throw new Error(`Product missing: ${item.productId}`);
+            
+            // --- NEW: Securely Fetch the Size-Specific Price from the JSON! ---
+            const sizeData = dbProduct.sizePricing ? dbProduct.sizePricing[item.size.toLowerCase()] : null;
+            
+            if (!sizeData || !sizeData.sellingPrice) {
+                 throw new Error(`Pricing data missing for product ${item.productId}, size: ${item.size}`);
+            }
 
-            calculatedSubtotal += (dbProduct.price * item.quantity);
+            const secureUnitPrice = sizeData.sellingPrice;
+
+            calculatedSubtotal += (secureUnitPrice * item.quantity);
             
             verifiedOrderItems.push({
                 product_id: dbProduct.id,
                 quantity: item.quantity,
                 size: item.size,
-                unit_price: dbProduct.price 
+                unit_price: secureUnitPrice 
             });
         }
 
-        // --- NEW AFFILIATE MATH ---
+        // --- AFFILIATE MATH ---
         let discountAmount = 0;
         let validAffiliateCode = null;
 
@@ -92,11 +100,11 @@ export async function createCheckoutSession(cartItems, deliveryAddress, contactN
         }
 
         const discountedSubtotal = calculatedSubtotal - discountAmount;
+        // Keep delivery fee logic exactly as you had it
         const deliveryFee = discountedSubtotal > 500 ? 0 : 50; 
         const finalTotal = discountedSubtotal + deliveryFee;
 
         const earnedCommission = validAffiliateCode ? (discountedSubtotal * 0.10) : 0;
-
 
         const razorpayOptions = {
             amount: Math.round(finalTotal * 100), 
@@ -112,7 +120,7 @@ export async function createCheckoutSession(cartItems, deliveryAddress, contactN
                 delivery_address: deliveryAddress,
                 contact_number: contactNumber,
                 total_amount: finalTotal,
-                affiliate_code: validAffiliateCode, // Save the applied code to the database!
+                affiliate_code: validAffiliateCode, 
                 affiliate_commission: earnedCommission,
                 razorpay_order_id: razorpayOrder.id,
                 payment_status: "PENDING",
@@ -135,8 +143,6 @@ export async function createCheckoutSession(cartItems, deliveryAddress, contactN
         return { success: false, error: error.message };
     }
 }
-
-
 
 export async function verifyPaymentSignature(razorpayOrderId, razorpayPaymentId, razorpaySignature) {
     try {
@@ -172,10 +178,6 @@ export async function verifyPaymentSignature(razorpayOrderId, razorpayPaymentId,
         return { success: false, error: "Internal verification failed." };
     }
 }
-
-
-
-// Add this at the bottom of src/actions/checkoutActions.js
 
 export async function markOrderAsFailed(orderId) {
     try {

@@ -45,7 +45,7 @@ const Product2 = () => {
                             title={product.name}
                             badgeText={"pack of 15 pads"}
                             text={product.productDetails}
-                            price={product.price}
+                            sizePricing={product.sizePricing}
                             sizeButtons={"large,xl,xxl,xxxl"}
                             productId={product.id}
                         />

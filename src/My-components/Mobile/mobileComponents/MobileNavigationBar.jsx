@@ -81,7 +81,10 @@ const MobileNavigationBar = () => {
 
     return (
         <div className="fixed bottom-0 w-full bg-white flex justify-center items-center rounded-t-xl h-[60px] shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50 lg:hidden">
-            <div className="flex justify-between w-[300px]">
+
+
+
+            <div className="flex justify-between w-[250px] xs:w-[300px]">
 
                 {/* --- UPDATED: Home Button instead of Orders --- */}
                 <button onClick={() => router.push('/home')}>
@@ -96,7 +99,7 @@ const MobileNavigationBar = () => {
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogContent className="w-[90vw] max-w-[400px] rounded-xl bg-white p-6">
                         <DialogHeader>
-                            <DialogTitle className="font-serif text-2xl font-bold italic text-center text-brand-dark mb-2">
+                            <DialogTitle className=" text-2xl font-bold  text-center text-brand-dark mb-2">
                                 Welcome to Pfemisure
                             </DialogTitle>
                             <DialogDescription className="text-center font-poppins text-gray-500 pb-4">

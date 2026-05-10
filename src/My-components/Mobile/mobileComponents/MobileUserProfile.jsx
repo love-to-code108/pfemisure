@@ -17,7 +17,7 @@ import { useCartStore } from "@/store/useCartStore";
 export default function MobileUserProfile({ initialProfile }) {
     const router = useRouter();
 
-    const clearCart = useCartStore((state) => state.clearCart); 
+    const clearCart = useCartStore((state) => state.clearCart);
 
     const supabase = createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -33,14 +33,14 @@ export default function MobileUserProfile({ initialProfile }) {
     const [isLoading, setIsLoading] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [hasCopied, setHasCopied] = useState(false);
-    
+
     // Address Management State
     const [addresses, setAddresses] = useState(parsedAddresses);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingIndex, setEditingIndex] = useState(null);
     const [isFetchingPin, setIsFetchingPin] = useState(false);
     const [isSavingAddress, setIsSavingAddress] = useState(false);
-    
+
     const [addressForm, setAddressForm] = useState({
         addressLine: "",
         city: "",
@@ -118,7 +118,7 @@ export default function MobileUserProfile({ initialProfile }) {
 
         // Call the database immediately
         const result = await updateProfileData(dataToSave);
-        
+
         if (result.success) {
             setAddresses(newAddresses);
             setIsDialogOpen(false);
@@ -126,7 +126,7 @@ export default function MobileUserProfile({ initialProfile }) {
         } else {
             toast.error("Failed to save address to database.");
         }
-        
+
         setIsSavingAddress(false);
     };
 
@@ -136,7 +136,7 @@ export default function MobileUserProfile({ initialProfile }) {
 
     const deleteAddress = async (indexToRemove) => {
         const newAddresses = addresses.filter((_, idx) => idx !== indexToRemove);
-        
+
         const dataToSave = {
             ...formData,
             delivery_addresses: newAddresses,
@@ -144,7 +144,7 @@ export default function MobileUserProfile({ initialProfile }) {
 
         // Delete from database immediately
         const result = await updateProfileData(dataToSave);
-        
+
         if (result.success) {
             setAddresses(newAddresses);
             toast.success("Address removed!");
@@ -173,7 +173,7 @@ export default function MobileUserProfile({ initialProfile }) {
         };
 
         const result = await updateProfileData(dataToSave);
-        
+
         if (result.success) {
             toast.success("Profile updated successfully!");
         } else {
@@ -185,12 +185,12 @@ export default function MobileUserProfile({ initialProfile }) {
     const handleLogout = async () => {
         setIsLoggingOut(true);
         const { error } = await supabase.auth.signOut();
-        
+
         if (!error) {
             clearCart(); // <--- WIPE THE CART!
             toast.success("Logged out successfully");
             router.push('/home');
-            router.refresh(); 
+            router.refresh();
         } else {
             toast.error("Failed to log out.");
             setIsLoggingOut(false);
@@ -202,7 +202,7 @@ export default function MobileUserProfile({ initialProfile }) {
             <h2 className="mb-6 text-2xl font-bold text-brand-dark">My Profile</h2>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-                
+
                 {/* Basic Info */}
                 <div className="flex flex-col gap-2">
                     <Label className="text-gray-600">Email Address</Label>
@@ -211,18 +211,18 @@ export default function MobileUserProfile({ initialProfile }) {
 
                 <div className="flex flex-col gap-2">
                     <Label className="text-gray-600">Full Name</Label>
-                    <Input 
-                        value={formData.full_name} 
-                        onChange={(e) => setFormData({...formData, full_name: e.target.value})}
+                    <Input
+                        value={formData.full_name}
+                        onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                     />
                 </div>
 
                 <div className="flex flex-col gap-2">
                     <Label className="text-gray-600">Phone Number</Label>
-                    <Input 
+                    <Input
                         type="tel"
-                        value={formData.phone_number} 
-                        onChange={(e) => setFormData({...formData, phone_number: e.target.value})}
+                        value={formData.phone_number}
+                        onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
                     />
                 </div>
 
@@ -258,9 +258,9 @@ export default function MobileUserProfile({ initialProfile }) {
 
                     {/* Add Address Button */}
                     {addresses.length < 3 && (
-                        <Button 
-                            type="button" 
-                            variant="outline" 
+                        <Button
+                            type="button"
+                            variant="outline"
                             onClick={() => openAddressModal()}
                             className="w-full py-8 border-2 border-dashed border-gray-300 text-gray-500 hover:text-[#CF2DFF] hover:border-[#CF2DFF] hover:bg-purple-50 rounded-md transition-all"
                         >
@@ -295,17 +295,17 @@ export default function MobileUserProfile({ initialProfile }) {
 
             {/* --- Address Dialog Modal --- */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="w-[90%] max-w-md rounded-md">
+                <DialogContent className="w-[90%] max-w-md rounded-md max-h-[85svh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>{editingIndex !== null ? "Edit Address" : "Add New Address"}</DialogTitle>
                     </DialogHeader>
                     <div className="flex flex-col gap-4 py-4">
-                        
+
                         <div className="flex flex-col gap-2">
                             <Label>PIN Code</Label>
                             <div className="relative">
-                                <Input 
-                                    placeholder="e.g. 110001" 
+                                <Input
+                                    placeholder="e.g. 110001"
                                     value={addressForm.pincode}
                                     onChange={handlePincodeChange}
                                     maxLength={6}
@@ -317,17 +317,17 @@ export default function MobileUserProfile({ initialProfile }) {
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col gap-2">
                                 <Label>City / District</Label>
-                                <Input 
-                                    value={addressForm.city} 
-                                    onChange={(e) => setAddressForm({...addressForm, city: e.target.value})} 
+                                <Input
+                                    value={addressForm.city}
+                                    onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
                                     placeholder="City"
                                 />
                             </div>
                             <div className="flex flex-col gap-2">
                                 <Label>State</Label>
-                                <Input 
-                                    value={addressForm.state} 
-                                    onChange={(e) => setAddressForm({...addressForm, state: e.target.value})} 
+                                <Input
+                                    value={addressForm.state}
+                                    onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
                                     placeholder="State"
                                 />
                             </div>
@@ -335,27 +335,18 @@ export default function MobileUserProfile({ initialProfile }) {
 
                         <div className="flex flex-col gap-2">
                             <Label>Flat, House no., Building, Company, Apartment</Label>
-                            <Input 
-                                value={addressForm.addressLine} 
-                                onChange={(e) => setAddressForm({...addressForm, addressLine: e.target.value})} 
+                            <Input
+                                value={addressForm.addressLine}
+                                onChange={(e) => setAddressForm({ ...addressForm, addressLine: e.target.value })}
                                 placeholder="Enter full address"
                             />
                         </div>
 
                     </div>
-                    <DialogFooter>
-                        <Button 
-                            type="button" 
-                            variant="outline" 
-                            onClick={() => setIsDialogOpen(false)} 
-                            disabled={isSavingAddress}
-                            className="w-full"
-                        >
-                            Cancel
-                        </Button>
-                        <Button 
-                            type="button" 
-                            onClick={saveAddress} 
+                    <DialogFooter className="flex flex-col sm:flex-col sm:space-x-0 gap-3 mt-4">
+                        <Button
+                            type="button"
+                            onClick={saveAddress}
                             disabled={isSavingAddress}
                             className="w-full bg-[#CF2DFF] hover:bg-[#b026d9] text-white"
                         >
@@ -368,6 +359,16 @@ export default function MobileUserProfile({ initialProfile }) {
                                 "Save Address"
                             )}
                         </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setIsDialogOpen(false)}
+                            disabled={isSavingAddress}
+                            className="w-full"
+                        >
+                            Cancel
+                        </Button>
+
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

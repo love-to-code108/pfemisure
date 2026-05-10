@@ -13,19 +13,28 @@ import Paragraph from "@/My-components/commonComponents/Paragraph";
 import { useCartStore } from "@/store/useCartStore";
 import { toast } from "sonner"
 
-const ProductStructure = ({ src, title, badgeText, text, price, productId, sizeButtons, sizeChart = false }) => {
+const ProductStructure = ({ src, title, badgeText, text, sizePricing, productId, sizeButtons, sizeChart = false }) => {
     const router = useRouter();
-    const [size, setSize] = useState()
-    const [quantity, setQuanity] = useState(1)
+    const [size, setSize] = useState();
+    const [quantity, setQuanity] = useState(1);
     
     const addToCart = useCartStore((state) => state.addToCart);
-    
-    // Grab the new actions!
     const setBuyNowItem = useCartStore((state) => state.setBuyNowItem);
     const setCheckoutMode = useCartStore((state) => state.setCheckoutMode);
 
+    // --- NEW: The Magic Sorter ---
+    // It extracts exactly what is in the DB and sorts them perfectly!
+    const sizeOrder = { "small": 1, "medium": 2, "large": 3, "xl": 4, "xxl": 5, "xxxl": 6 };
+    const dynamicSizeButtons = sizePricing 
+        ? Object.keys(sizePricing)
+            .sort((a, b) => (sizeOrder[a.toLowerCase()] || 99) - (sizeOrder[b.toLowerCase()] || 99))
+            .join(",") 
+        : sizeButtons;
+
+    const activePricing = sizePricing && size ? sizePricing[size] : null;
+
     const handleAddToCart = () => {
-        if (!size) {
+        if (!size || !activePricing) {
             toast.error("Please select a size first!");
             return;
         }
@@ -36,16 +45,15 @@ const ProductStructure = ({ src, title, badgeText, text, price, productId, sizeB
             size: size,
             quantity: quantity,
             productImageUrl: src,
-            price,
+            price: activePricing.sellingPrice, 
         };
 
         addToCart(productToAdd);
         toast.success(`Added ${quantity} ${size} to cart`);
     };
 
-    // NEW: The Dedicated Buy Now Handler
     const handleBuyNow = () => {
-        if (!size) {
+        if (!size || !activePricing) {
             toast.error("Please select a size first!");
             return;
         }
@@ -56,10 +64,9 @@ const ProductStructure = ({ src, title, badgeText, text, price, productId, sizeB
             size: size,
             quantity: quantity,
             productImageUrl: src,
-            price,
+            price: activePricing.sellingPrice,
         };
 
-        // Save it to the isolated state, flip the switch, and send them to checkout!
         setBuyNowItem(productToBuy);
         setCheckoutMode("buynow");
         router.push('/checkout');
@@ -85,15 +92,27 @@ const ProductStructure = ({ src, title, badgeText, text, price, productId, sizeB
                 <Paragraph>{text}</Paragraph>
             </div>
 
-            {/* product price */}
-            <div className=" w-full mb-[20px]">
-                <h1 className=" text-3xl text-mainColour">₹ {price}</h1>
+            {/* Dynamic Price Display */}
+            <div className="w-full mb-[20px] flex items-end gap-3 transition-all duration-300">
+                {activePricing ? (
+                    <>
+                        <h1 className="text-3xl font-bold text-[#CF2DFF]">
+                            ₹{activePricing.sellingPrice}
+                        </h1>
+                        <h2 className="text-xl text-gray-400 line-through mb-[2px]">
+                            ₹{activePricing.mrp}
+                        </h2>
+                    </>
+                ) : (
+                    <h1 className="text-2xl text-gray-400 italic">Select a size to view price</h1>
+                )}
             </div>
 
             {/* product size */}
             <div className=" w-full mb-[10px]">
                 <p className="text-lg mb-[10px]">Size</p>
-                <SizeButtonGroup currentSize={size} setCurrentSize={setSize} sizeButtons={sizeButtons} />
+                {/* Wires up the dynamic sizes! */}
+                <SizeButtonGroup currentSize={size} setCurrentSize={setSize} sizeButtons={dynamicSizeButtons} />
             </div>
 
             {/* product quantity */}
@@ -103,17 +122,8 @@ const ProductStructure = ({ src, title, badgeText, text, price, productId, sizeB
 
             {/* add to cart & buy now */}
             <div className="w-full flex justify-start mb-[30px]">
-                <Button
-                    functionCall={handleAddToCart}
-                    size={"md"} className={"mr-[10px]"} type={"solid"} 
-                    value={"Add to cart"} 
-                />
-                
-                {/* Wires up the new Buy Now button! */}
-                <Button
-                    functionCall={handleBuyNow}
-                    size={"md"} type={"outline-solid"} value={"Buy now"} 
-                />
+                <Button functionCall={handleAddToCart} size={"md"} className={"mr-[10px]"} type={"solid"} value={"Add to cart"} />
+                <Button functionCall={handleBuyNow} size={"md"} type={"outline-solid"} value={"Buy now"} />
             </div>
 
             {/* add to wishlist & size guide */}

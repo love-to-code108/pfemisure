@@ -6,10 +6,6 @@ import { ShoppingCart, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CartComponent from "@/My-components/commonComponents/CartComponent";
 
-
-
-
-
 export default function MobileCartPage() {
     const router = useRouter();
     const cart = useCartStore((state) => state.cart);
@@ -25,11 +21,11 @@ export default function MobileCartPage() {
     }, 0);
 
     return (
-        <div className="min-h-screen pb-24 bg-gray-50
-        
-        w-full flex flex-col items-center">
+        <div className="min-h-screen bg-gray-50 w-full flex flex-col items-center">
 
-            <div className=" w-full max-w-[500px] ">
+            {/* THE MAGIC FIX IS HERE: pb-[220px] instead of pb-24 */}
+            <div className="w-full max-w-[500px] pb-[220px]">
+
                 {/* Simple Header */}
                 <div className="sticky top-0 z-10 flex items-center p-4 bg-white border-b border-gray-100">
                     <button onClick={() => router.back()} className="p-2 mr-2 bg-gray-50 rounded-full">
@@ -66,11 +62,8 @@ export default function MobileCartPage() {
 
                 {/* Sticky Checkout Bar */}
                 {cart.length > 0 && (
-                    <div className="fixed bottom-[70px] left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]
-                    
-                     flex justify-center">
-
-                        <div className=" w-full max-w-[400px]">
+                    <div className="fixed bottom-[60px] left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] flex justify-center">
+                        <div className="w-full max-w-[400px]">
                             <div className="flex items-center justify-between mb-4">
                                 <span className="text-gray-600">Total Amount:</span>
                                 <span className="text-2xl font-bold">
@@ -78,16 +71,15 @@ export default function MobileCartPage() {
                                 </span>
                             </div>
                             
-                                <Button
-                                    onClick={() => {
-                                        setCheckoutMode("cart"); // Add this line!
-                                        router.push('/checkout');
-                                    }}
-                                    className="w-full h-14 bg-[#CF2DFF] hover:bg-[#b026d9] text-white text-lg font-bold rounded-md"
-                                >
-                                    Proceed to Checkout
-                                </Button>
-                            
+                            <Button
+                                onClick={() => {
+                                    setCheckoutMode("cart");
+                                    router.push('/checkout');
+                                }}
+                                className="w-full h-14 bg-[#CF2DFF] hover:bg-[#b026d9] text-white text-lg font-bold rounded-md"
+                            >
+                                Proceed to Checkout
+                            </Button>
                         </div>
                     </div>
                 )}

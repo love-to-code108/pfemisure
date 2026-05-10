@@ -1,13 +1,32 @@
+"use client"
+
+import { useEffect, useState } from "react";
 import Heading from "@/My-components/commonComponents/Heading";
 import Paragraph from "@/My-components/commonComponents/Paragraph";
 import PurpleBadges from "@/My-components/commonComponents/PurpleBadges";
 import MobileFooter from "@/My-components/Mobile/mobileComponents/MobileFooter";
 import ProductStructure from "@/My-components/Mobile/mobileComponents/ProductStructure";
+import ProductSkeleton from "@/My-components/Mobile/mobileComponents/ProductSkeleton";
+import getAllProducts from "@/actions/getAllProducts";
 
 
 const Product1 = () => {
+    const [product, setProduct] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                const products = await getAllProducts();
+                setProduct(products[0]); // Green An-Ion is index 0
+            } catch (error) {
+                console.error("Failed to fetch product", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchProduct();
+    }, []);
     return (
         <div>
             <div className=" bg-white w-full flex flex-col items-center
@@ -15,17 +34,21 @@ const Product1 = () => {
         ">
 
 
-                {/*  product Green An-Ion Pad */}
-                <ProductStructure
-                    src={"https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/pfemisureMobile/mobileHomePageProductGreenIon.jpg"}
-                    title={"Green AN-ION Pad"}
-                    badgeText={"pack of 15 pads"}
-                    text={"Green Anion Technology: Embedded strip neutralizes odor, inhibits bacteria, and balances pH for lasting freshness through out all day and night.Discreet Trifold Wrapper, Neatly folded and individually wrapped for pocket-sized portability and hygienic disposal."}
-                    price={"329.0"}
-                    sizeButtons={"large,xl,xxl,xxxl"}
-
-
-                />
+                {isLoading ? (
+                    <div className="w-full px-[10px] pt-8 flex justify-center"><ProductSkeleton /></div>
+                ) : (
+                    product && (
+                        <ProductStructure
+                            src={product.productImageUrl}
+                            title={product.name}
+                            badgeText={"pack of 15 pads"}
+                            text={product.productDetails}
+                            price={product.price}
+                            sizeButtons={"large,xl,xxl,xxxl"}
+                            productId={product.id}
+                        />
+                    )
+                )}
 
 
 

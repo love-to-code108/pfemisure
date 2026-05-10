@@ -1,15 +1,31 @@
+"use client"
+
+import { useEffect, useState } from "react";
 import Heading from "@/My-components/commonComponents/Heading"
 import Paragraph from "@/My-components/commonComponents/Paragraph"
 import PurpleBadges from "@/My-components/commonComponents/PurpleBadges"
 import MobileFooter from "@/My-components/Mobile/mobileComponents/MobileFooter"
 import ProductStructure from "@/My-components/Mobile/mobileComponents/ProductStructure"
-
-
+import ProductSkeleton from "@/My-components/Mobile/mobileComponents/ProductSkeleton";
+import getAllProducts from "@/actions/getAllProducts";
 
 const Product2 = () => {
+    const [product, setProduct] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-
-
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                const products = await getAllProducts();
+                setProduct(products[1]); // Graphene Pad is index 1
+            } catch (error) {
+                console.error("Failed to fetch product", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchProduct();
+    }, []);
     return (
         <div>
             <div className=" bg-white w-full flex flex-col items-center
@@ -20,15 +36,21 @@ const Product2 = () => {
 
 
 
-                {/* product 2 */}
-                <ProductStructure
-                    src={"https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/pfemisureMobile/mobileHomePageProductGraphene.jpg"}
-                    title={"Graphene AN-ION Pad"}
-                    badgeText={"pack of 15 pads"}
-                    text={"Graphene–AN-ION Core cools and helps maintain freshness while supporting odor control. 4-Wing Security ensures a secure fit with minimal shifting and reliable leak protection. Trifold Design keeps it compact, pocket-sized, and discreet for easy carry. Ultra-Absorbent Layers are breathable and quickly absorb and lock away moisture for all-day comfort."}
-                    price={"379.0"}
-                    sizeButtons={"large,xl,xxl,xxxl"}
-                />
+                {isLoading ? (
+                    <div className="w-full px-[10px] pt-8 flex justify-center"><ProductSkeleton /></div>
+                ) : (
+                    product && (
+                        <ProductStructure
+                            src={product.productImageUrl}
+                            title={product.name}
+                            badgeText={"pack of 15 pads"}
+                            text={product.productDetails}
+                            price={product.price}
+                            sizeButtons={"large,xl,xxl,xxxl"}
+                            productId={product.id}
+                        />
+                    )
+                )}
 
 
 

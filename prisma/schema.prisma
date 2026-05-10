@@ -23,11 +23,12 @@ model Profile {
 model Product {
   id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name            String
-  price           Float
+  // --- UPDATED: Replaced 'price' with dynamic JSON pricing ---
+  sizePricing     Json     
   productDetails  String
   productImageUrl String
   
-  // Updated: A product can appear in many order items
+  // A product can appear in many order items
   order_items     OrderItem[]
 
   @@map("products")

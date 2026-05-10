@@ -42,7 +42,7 @@ const Product3 = () => {
                             title={product.name}
                             badgeText={"pack of 5 pantie"}
                             text={product.productDetails}
-                            price={product.price}
+                            sizePricing={product.sizePricing}
                             sizeChart={true}
                             sizeButtons={"small,medium,large,xl,xxl,xxxl"}
                             productId={product.id}

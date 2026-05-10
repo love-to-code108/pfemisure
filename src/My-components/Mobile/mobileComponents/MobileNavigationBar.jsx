@@ -96,7 +96,7 @@ const MobileNavigationBar = () => {
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogContent className="w-[90vw] max-w-[400px] rounded-xl bg-white p-6">
                         <DialogHeader>
-                            <DialogTitle className="font-serif text-2xl font-bold italic text-center text-brand-dark mb-2">
+                            <DialogTitle className=" text-2xl font-bold  text-center text-brand-dark mb-2">
                                 Welcome to Pfemisure
                             </DialogTitle>
                             <DialogDescription className="text-center font-poppins text-gray-500 pb-4">

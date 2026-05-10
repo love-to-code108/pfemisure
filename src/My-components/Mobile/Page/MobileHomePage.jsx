@@ -134,7 +134,7 @@ const MobileHomePage = () => {
                                     title={productArray[0].name}
                                     badgeText={"pack of 15 pads"}
                                     text={productArray[0].productDetails}
-                                    price={productArray[0].price}
+                                    sizePricing={productArray[0].sizePricing}
                                     sizeButtons={"large,xl,xxl,xxxl"}
                                     productId={productArray[0].id}
                                 />
@@ -147,7 +147,7 @@ const MobileHomePage = () => {
                                     title={productArray[1].name}
                                     badgeText={"pack of 15 pads"}
                                     text={productArray[1].productDetails}
-                                    price={productArray[1].price}
+                                    sizePricing={productArray[1].sizePricing}
                                     sizeButtons={"large,xl,xxl,xxxl"}
                                     productId={productArray[1].id}
                                 />
@@ -160,7 +160,7 @@ const MobileHomePage = () => {
                                     title={productArray[2].name}
                                     badgeText={"pack of 5 pantie"}
                                     text={productArray[2].productDetails}
-                                    price={productArray[2].price}
+                                    sizePricing={productArray[2].sizePricing}
                                     sizeChart={true}
                                     sizeButtons={"small,medium,large,xl,xxl,xxxl"}
                                     productId={productArray[2].id}

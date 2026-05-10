@@ -34,10 +34,10 @@ const MobileNavigationBar = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     // Initialize Supabase inside the component
-    const supabase = createBrowserClient(
+    const [supabase] = useState(() => createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    );
+    ));
 
     const router = useRouter();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -46,18 +46,21 @@ const MobileNavigationBar = () => {
     // --- NEW: Grab the total items from Zustand ---
     const totalItems = useCartStore((state) => state.getTotalItems());
 
-    // checking if the user is logged in or not
+    // The Real-Time Auth Listener
     useEffect(() => {
-        const cookieChecker = async () => {
-            const { data, error } = await supabase.auth.getSession();
-            if (data.session) {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (session) {
                 setIsLoggedIn(true);
+                setIsDialogOpen(false); // Automatically closes the popup if it's open!
             } else {
                 setIsLoggedIn(false);
             }
-        }
-        cookieChecker()
-    })
+        });
+
+        return () => {
+            subscription.unsubscribe(); // Cleanup memory when component unmounts
+        };
+    }, [supabase]);
 
     // handling profile icon click
     const handleProfileIconClick = () => {
@@ -120,7 +123,7 @@ const MobileNavigationBar = () => {
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogContent className="w-[90vw] max-w-[400px] rounded-xl bg-white p-6">
                         <DialogHeader>
-                            <DialogTitle className="font-serif text-2xl font-bold italic text-center text-brand-dark mb-2">
+                            <DialogTitle className="text-center text-2xl font-bold text-brand-dark mb-2">
                                 Welcome to Pfemisure
                             </DialogTitle>
                             <DialogDescription className="text-center font-poppins text-gray-500 pb-4">

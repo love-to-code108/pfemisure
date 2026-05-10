@@ -198,8 +198,8 @@ export default function MobileUserProfile({ initialProfile }) {
     };
 
     return (
-        <div className="w-full max-w-md p-6 mx-auto bg-white rounded-xl">
-            <h2 className="mb-6 font-serif text-2xl font-bold text-brand-dark">My Profile</h2>
+        <div className="w-full max-w-md p-6 mx-auto bg-white rounded-md">
+            <h2 className="mb-6 text-2xl font-bold text-brand-dark">My Profile</h2>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                 
@@ -236,7 +236,7 @@ export default function MobileUserProfile({ initialProfile }) {
                     {/* Address Cards */}
                     <div className="space-y-3">
                         {addresses.map((addr, index) => (
-                            <div key={index} className="flex items-start justify-between p-4 border border-gray-200 rounded-xl bg-gray-50">
+                            <div key={index} className="flex items-start justify-between p-4 border border-gray-200 rounded-md bg-gray-50">
                                 <div className="flex items-start gap-3">
                                     <MapPin className="w-5 h-5 mt-0.5 text-[#CF2DFF]" />
                                     <div>
@@ -245,10 +245,10 @@ export default function MobileUserProfile({ initialProfile }) {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2 ml-4">
-                                    <button type="button" onClick={() => openAddressModal(index)} className="p-2 text-gray-400 hover:text-[#CF2DFF] bg-white border border-gray-200 rounded-lg shadow-sm">
+                                    <button type="button" onClick={() => openAddressModal(index)} className="p-2 text-gray-400 hover:text-[#CF2DFF] bg-white border border-gray-200 rounded-md shadow-sm">
                                         <Edit2 className="w-4 h-4" />
                                     </button>
-                                    <button type="button" onClick={() => deleteAddress(index)} className="p-2 text-gray-400 hover:text-red-500 bg-white border border-gray-200 rounded-lg shadow-sm">
+                                    <button type="button" onClick={() => deleteAddress(index)} className="p-2 text-gray-400 hover:text-red-500 bg-white border border-gray-200 rounded-md shadow-sm">
                                         <Trash2 className="w-4 h-4" />
                                     </button>
                                 </div>
@@ -262,7 +262,7 @@ export default function MobileUserProfile({ initialProfile }) {
                             type="button" 
                             variant="outline" 
                             onClick={() => openAddressModal()}
-                            className="w-full py-8 border-2 border-dashed border-gray-300 text-gray-500 hover:text-[#CF2DFF] hover:border-[#CF2DFF] hover:bg-purple-50 rounded-xl transition-all"
+                            className="w-full py-8 border-2 border-dashed border-gray-300 text-gray-500 hover:text-[#CF2DFF] hover:border-[#CF2DFF] hover:bg-purple-50 rounded-md transition-all"
                         >
                             <Plus className="w-5 h-5 mr-2" />
                             Add New Address
@@ -271,7 +271,7 @@ export default function MobileUserProfile({ initialProfile }) {
                 </div>
 
                 {/* Affiliate Code */}
-                <div className="flex flex-col gap-2 mt-4 p-4 border border-purple-100 bg-purple-50 rounded-lg">
+                <div className="flex flex-col gap-2 mt-4 p-4 border border-purple-100 bg-purple-50 rounded-md">
                     <Label className="text-purple-800 font-semibold">Your Affiliate Code</Label>
                     <div className="flex items-center gap-2">
                         <Input value={initialProfile?.affiliate_code || "Generating..."} readOnly className="bg-white border-purple-200 font-mono text-lg font-bold text-center text-purple-700" />
@@ -283,10 +283,10 @@ export default function MobileUserProfile({ initialProfile }) {
 
                 {/* Action Buttons */}
                 <div className="flex flex-col gap-3 mt-4">
-                    <Button type="submit" disabled={isLoading} className="w-full bg-[#CF2DFF] hover:bg-[#b026d9] text-white py-6 text-lg font-semibold rounded-lg">
+                    <Button type="submit" disabled={isLoading} className="w-full bg-[#CF2DFF] hover:bg-[#b026d9] text-white py-6 text-lg font-semibold rounded-md">
                         {isLoading ? "Saving..." : "Save Changes"}
                     </Button>
-                    <Button type="button" variant="outline" disabled={isLoggingOut} onClick={handleLogout} className="w-full py-6 text-lg font-semibold text-red-600 border-red-200 rounded-lg hover:bg-red-50 hover:text-red-700">
+                    <Button type="button" variant="outline" disabled={isLoggingOut} onClick={handleLogout} className="w-full py-6 text-lg font-semibold text-red-600 border-red-200 rounded-md hover:bg-red-50 hover:text-red-700">
                         <LogOut className="w-5 h-5 mr-2" />
                         {isLoggingOut ? "Logging out..." : "Log Out"}
                     </Button>
@@ -295,7 +295,7 @@ export default function MobileUserProfile({ initialProfile }) {
 
             {/* --- Address Dialog Modal --- */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="w-[90%] max-w-md rounded-xl">
+                <DialogContent className="w-[90%] max-w-md rounded-md">
                     <DialogHeader>
                         <DialogTitle>{editingIndex !== null ? "Edit Address" : "Add New Address"}</DialogTitle>
                     </DialogHeader>

@@ -1,13 +1,13 @@
 "use client"
 
 import Link from "next/link";
-import { Heart, Menu, ShoppingCart, User } from "lucide-react";
+import { Heart, Menu, ShoppingCart, User, Package, Loader2 } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
-import { FaFacebookSquare } from "react-icons/fa"; // Added for social buttons
+import { FaFacebookSquare } from "react-icons/fa"; 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { createBrowserClient } from '@supabase/ssr'; // Added for auth
-import { Package } from "lucide-react";
+import { createBrowserClient } from '@supabase/ssr'; 
+import { useCartStore } from "@/store/useCartStore"; // --- NEW: Import Cart Store ---
 
 // Shadcn Sheet
 import {
@@ -18,14 +18,13 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet";
 
-// Shadcn Dialog (New)
+// Shadcn Dialog 
 import {
     Dialog,
     DialogContent,
     DialogDescription,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog";
 
 const MobileNavigationBar = () => {
@@ -34,59 +33,44 @@ const MobileNavigationBar = () => {
     const currentPath = usePathname();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-
     // Initialize Supabase inside the component
     const supabase = createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     );
 
-
     const router = useRouter();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [authLoading, setAuthLoading] = useState(null); 
 
-
-
+    // --- NEW: Grab the total items from Zustand ---
+    const totalItems = useCartStore((state) => state.getTotalItems());
 
     // checking if the user is logged in or not
     useEffect(() => {
-
         const cookieChecker = async () => {
             const { data, error } = await supabase.auth.getSession();
-            // console.log(data)
             if (data.session) {
                 setIsLoggedIn(true);
             } else {
                 setIsLoggedIn(false);
             }
         }
-
         cookieChecker()
-
     })
-
-
-
-
 
     // handling profile icon click
     const handleProfileIconClick = () => {
         if (isLoggedIn) {
-            // Send them to the profile page
             router.push('/profile');
         } else {
-            // Open the Shadcn login dialog
             setIsDialogOpen(true);
         }
     }
 
-
-
-
-
-
     // Auth Handlers
     const handleGoogleLogin = async () => {
+        setAuthLoading('google'); 
         await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
@@ -96,6 +80,7 @@ const MobileNavigationBar = () => {
     };
 
     const handleFacebookLogin = async () => {
+        setAuthLoading('facebook'); 
         await supabase.auth.signInWithOAuth({
             provider: 'facebook',
             options: {
@@ -103,15 +88,6 @@ const MobileNavigationBar = () => {
             },
         });
     };
-
-
-
-
-
-
-
-
-
 
     // sheet closing login and animation
     const closingTheSheet = () => {
@@ -125,38 +101,14 @@ const MobileNavigationBar = () => {
         return currentPath === href ? baseRouteStyle + activeRouteStyle : baseRouteStyle;
     }
 
-
-
-
-
-
-
-
-
     return (
-        <div className="fixed bottom-0 w-full bg-white flex justify-center items-center rounded-t-xl h-[60px] shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50
-        
-         lg:hidden
-        ">
-
-            <div className="flex justify-between w-[300px]">
-
+        <div className="fixed bottom-0 w-full bg-white flex justify-center items-center rounded-t-xl h-[60px] shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50 lg:hidden">
+            <div className="flex justify-between w-[240px] xs:w-[300px]">
 
                 {/* orders */}
-                <button
-                    onClick={() => router.push('/orders')}
-                    
-                >
+                <button onClick={() => router.push('/orders')}>
                     <Package color="#CF2DFF" className="w-6 h-6" />
-                    
                 </button>
-
-
-
-
-
-
-
 
                 {/* the profile icon */}
                 <button onClick={handleProfileIconClick} className=" relative">
@@ -166,8 +118,6 @@ const MobileNavigationBar = () => {
 
                 {/* USER AUTH DIALOG */}
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-
-                    {/* The Dialog Popup */}
                     <DialogContent className="w-[90vw] max-w-[400px] rounded-xl bg-white p-6">
                         <DialogHeader>
                             <DialogTitle className="font-serif text-2xl font-bold italic text-center text-brand-dark mb-2">
@@ -182,46 +132,42 @@ const MobileNavigationBar = () => {
                         <div className="flex flex-col gap-3 font-poppins">
                             <button
                                 onClick={handleGoogleLogin}
-                                className="w-full flex items-center justify-center gap-3 py-3 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                                disabled={authLoading !== null} 
+                                className="w-full flex items-center justify-center gap-3 py-3 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                <FcGoogle className="w-5 h-5 text-blue-500" />
-                                Continue with Google
+                                {authLoading === 'google' ? (
+                                    <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+                                ) : (
+                                    <FcGoogle className="w-5 h-5" />
+                                )}
+                                {authLoading === 'google' ? "Connecting..." : "Continue with Google"}
                             </button>
 
                             <button
                                 onClick={handleFacebookLogin}
-                                className="w-full flex items-center justify-center gap-3 py-3 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                                disabled={authLoading !== null} 
+                                className="w-full flex items-center justify-center gap-3 py-3 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                <FaFacebookSquare className="w-5 h-5 text-blue-600" />
-                                Continue with Facebook
+                                {authLoading === 'facebook' ? (
+                                    <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+                                ) : (
+                                    <FaFacebookSquare className="w-5 h-5 text-blue-600" />
+                                )}
+                                {authLoading === 'facebook' ? "Connecting..." : "Continue with Facebook"}
                             </button>
                         </div>
                     </DialogContent>
                 </Dialog>
 
-
-
-
-
-
-
-
-
-
-                {/* cart */}
-                <Link href={"/cart"}>
+                {/* --- UPDATED: cart with Notification Badge --- */}
+                <Link href={"/cart"} className="relative flex items-center justify-center">
                     <ShoppingCart color="#CF2DFF" />
+                    {totalItems > 0 && (
+                        <span className="absolute -top-1.5 -right-2.5 flex px-1 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm border border-white">
+                            {totalItems > 9 ? "9+" : totalItems}
+                        </span>
+                    )}
                 </Link>
-
-
-
-
-
-
-
-
-
-
 
                 {/* hamburger menu button */}
                 <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -241,7 +187,7 @@ const MobileNavigationBar = () => {
                                 <Link onClick={closingTheSheet} className={navbarLinkStyling("/home")} href="/home">Home</Link>
                                 <Link onClick={closingTheSheet} className={navbarLinkStyling("/product1")} href="/product1">Green AN-ION Pad</Link>
                                 <Link onClick={closingTheSheet} className={navbarLinkStyling("/product2")} href="/product2">Graphene AN-ION Pad</Link>
-                                <Link onClick={closingTheSheet} className={navbarLinkStyling("/product3")} href="/product3">AN-ION Period Panty</Link>
+                                <Link onClick={closingTheSheet} className={navbarLinkStyling("/product3")} href="/product3">Period Panty</Link>
                                 <Link onClick={closingTheSheet} className={navbarLinkStyling("/affiliate")} href="/affiliate">Affiliate</Link>
                             </div>
                         </div>

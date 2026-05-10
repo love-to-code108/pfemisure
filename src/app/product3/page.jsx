@@ -1,10 +1,28 @@
+"use client"
+
+import { useEffect, useState } from "react";
 import MobileFooter from "@/My-components/Mobile/mobileComponents/MobileFooter"
 import ProductStructure from "@/My-components/Mobile/mobileComponents/ProductStructure"
-
-
-
+import ProductSkeleton from "@/My-components/Mobile/mobileComponents/ProductSkeleton";
+import getAllProducts from "@/actions/getAllProducts";
 
 const Product3 = () => {
+    const [product, setProduct] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                const products = await getAllProducts();
+                setProduct(products[2]); // Period Panty is index 2
+            } catch (error) {
+                console.error("Failed to fetch product", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchProduct();
+    }, []);
 
 
 
@@ -15,15 +33,22 @@ const Product3 = () => {
 
 
 
-                {/* product 3 */}
-                <ProductStructure
-                    src={"https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/pfemisureMobile/mobileHomePageProductPeriodPanty.jpg"}
-                    title={"AN-ION Period Panty"}
-                    badgeText={"pack of 5 pantie"}
-                    text={"Anion Period Panty is designed to feel just like your regular underwear but packs a super-absorbent, stain-proof core. Plus, our advanced anion technology stops odors in their tracks, so you stay fresh and cool"}
-                    price={"229.0"}
-                    sizeButtons={"small,medium,large,xl,xxl,xxxl"}
-                />
+                {isLoading ? (
+                    <div className="w-full px-[10px] pt-8 flex justify-center "><ProductSkeleton /></div>
+                ) : (
+                    product && (
+                        <ProductStructure
+                            src={product.productImageUrl}
+                            title={product.name}
+                            badgeText={"pack of 5 pantie"}
+                            text={product.productDetails}
+                            price={product.price}
+                            sizeChart={true}
+                            sizeButtons={"small,medium,large,xl,xxl,xxxl"}
+                            productId={product.id}
+                        />
+                    )
+                )}
 
 
 
@@ -31,8 +56,8 @@ const Product3 = () => {
 
 
 
-
-                <div>
+                
+                <div className=" max-w-[400px]">
                     <img className=" mb-[10px] rounded-md" src="https://diwhqxynbnsxewewvxyy.supabase.co/storage/v1/object/public/products/mobileProduct3PageImg/mobileProduct3Img1.png" alt="" />
 
 

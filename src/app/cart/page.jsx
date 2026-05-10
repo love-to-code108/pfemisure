@@ -6,10 +6,15 @@ import { ShoppingCart, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CartComponent from "@/My-components/commonComponents/CartComponent";
 
+
+
+
+
 export default function MobileCartPage() {
     const router = useRouter();
     const cart = useCartStore((state) => state.cart);
     const getCartTotal = useCartStore((state) => state.getCartTotal);
+    const setCheckoutMode = useCartStore((state) => state.setCheckoutMode);
 
     // Calculate the total directly here!
     const totalAmount = cart.reduce((total, item) => {
@@ -38,7 +43,7 @@ export default function MobileCartPage() {
                         </div>
                         <h2 className="text-xl font-semibold text-gray-600">Your cart is empty</h2>
                         <p className="mt-2 text-sm">Looks like you haven't added anything yet.</p>
-                        <Button 
+                        <Button
                             onClick={() => router.push('/home')}
                             className="mt-6 bg-[#CF2DFF] text-white px-8"
                         >
@@ -47,9 +52,9 @@ export default function MobileCartPage() {
                     </div>
                 ) : (
                     cart.map((item, index) => (
-                        <CartComponent 
-                            key={`${item.productId}-${item.size}-${index}`} 
-                            item={item} 
+                        <CartComponent
+                            key={`${item.productId}-${item.size}-${index}`}
+                            item={item}
                         />
                     ))
                 )}
@@ -64,8 +69,11 @@ export default function MobileCartPage() {
                             ₹{totalAmount.toFixed(2)}
                         </span>
                     </div>
-                    <Button 
-                        onClick={() => router.push('/checkout')}
+                    <Button
+                        onClick={() => {
+                            setCheckoutMode("cart"); // Add this line!
+                            router.push('/checkout');
+                        }}
                         className="w-full h-14 bg-[#CF2DFF] hover:bg-[#b026d9] text-white text-lg font-bold rounded-xl"
                     >
                         Proceed to Checkout

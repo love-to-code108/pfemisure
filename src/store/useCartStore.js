@@ -5,6 +5,10 @@ export const useCartStore = create(
     persist(
         (set, get) => ({
             cart: [],
+            
+            // --- NEW: Buy Now State ---
+            buyNowItem: null,
+            checkoutMode: "cart", // Can be "cart" or "buynow"
 
             addToCart: (product) => {
                 const currentCart = get().cart;
@@ -44,21 +48,23 @@ export const useCartStore = create(
                 });
             },
 
-            // Calculates the final bill for the whole cart
             getCartTotal: () => {
                 return get().cart.reduce((total, item) => total + (item.price * item.quantity), 0);
             },
             
-            // Counts total physical items for the Red Notification Dot
             getTotalItems: () => {
                 return get().cart.reduce((total, item) => total + item.quantity, 0);
             },
             
-            // Empties the cart after a successful checkout
-            clearCart: () => set({ cart: [] })
+            clearCart: () => set({ cart: [] }),
+
+            // --- NEW: Buy Now Actions ---
+            setBuyNowItem: (item) => set({ buyNowItem: item }),
+            setCheckoutMode: (mode) => set({ checkoutMode: mode }),
+            clearBuyNowItem: () => set({ buyNowItem: null })
         }),
         {
-            name: 'pfemisure-cart-storage', // Saves to localStorage
+            name: 'pfemisure-cart-storage',
         }
     )
 );

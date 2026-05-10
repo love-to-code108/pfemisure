@@ -66,11 +66,16 @@ export async function createCheckoutSession(cartItems, deliveryAddress, contactN
 
             if (!dbProduct) throw new Error(`Product missing: ${item.productId}`);
             
-            // --- NEW: Securely Fetch the Size-Specific Price from the JSON! ---
+            // Securely Fetch the Size-Specific Price from the JSON
             const sizeData = dbProduct.sizePricing ? dbProduct.sizePricing[item.size.toLowerCase()] : null;
             
             if (!sizeData || !sizeData.sellingPrice) {
                  throw new Error(`Pricing data missing for product ${item.productId}, size: ${item.size}`);
+            }
+
+            // --- THE SERVER VAULT: OOS CHECK ---
+            if (sizeData.inStock === false) {
+                 throw new Error(`Sorry, "${dbProduct.name}" in size ${item.size.toUpperCase()} is currently out of stock. Please remove it from your cart to proceed.`);
             }
 
             const secureUnitPrice = sizeData.sellingPrice;
@@ -100,7 +105,6 @@ export async function createCheckoutSession(cartItems, deliveryAddress, contactN
         }
 
         const discountedSubtotal = calculatedSubtotal - discountAmount;
-        // Keep delivery fee logic exactly as you had it
         const deliveryFee = discountedSubtotal > 500 ? 0 : 50; 
         const finalTotal = discountedSubtotal + deliveryFee;
 
@@ -140,7 +144,7 @@ export async function createCheckoutSession(cartItems, deliveryAddress, contactN
 
     } catch (error) {
         console.error("Checkout Initialization Error:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error.message }; // This sends the exact OOS message to the UI!
     }
 }
 

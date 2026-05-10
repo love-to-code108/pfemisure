@@ -22,8 +22,6 @@ const ProductStructure = ({ src, title, badgeText, text, sizePricing, productId,
     const setBuyNowItem = useCartStore((state) => state.setBuyNowItem);
     const setCheckoutMode = useCartStore((state) => state.setCheckoutMode);
 
-    // --- NEW: The Magic Sorter ---
-    // It extracts exactly what is in the DB and sorts them perfectly!
     const sizeOrder = { "small": 1, "medium": 2, "large": 3, "xl": 4, "xxl": 5, "xxxl": 6 };
     const dynamicSizeButtons = sizePricing 
         ? Object.keys(sizePricing)
@@ -32,10 +30,17 @@ const ProductStructure = ({ src, title, badgeText, text, sizePricing, productId,
         : sizeButtons;
 
     const activePricing = sizePricing && size ? sizePricing[size] : null;
+    
+    // --- NEW: OOS Check ---
+    const isOutOfStock = activePricing && activePricing.inStock === false;
 
     const handleAddToCart = () => {
         if (!size || !activePricing) {
             toast.error("Please select a size first!");
+            return;
+        }
+        if (isOutOfStock) {
+            toast.error("Sorry, this size is currently out of stock.");
             return;
         }
 
@@ -55,6 +60,10 @@ const ProductStructure = ({ src, title, badgeText, text, sizePricing, productId,
     const handleBuyNow = () => {
         if (!size || !activePricing) {
             toast.error("Please select a size first!");
+            return;
+        }
+        if (isOutOfStock) {
+            toast.error("Sorry, this size is currently out of stock.");
             return;
         }
 
@@ -92,17 +101,21 @@ const ProductStructure = ({ src, title, badgeText, text, sizePricing, productId,
                 <Paragraph>{text}</Paragraph>
             </div>
 
-            {/* Dynamic Price Display */}
-            <div className="w-full mb-[20px] flex items-end gap-3 transition-all duration-300">
+            {/* --- NEW: Dynamic Price Display with OOS Warning --- */}
+            <div className="w-full mb-[20px] flex items-end gap-3 transition-all duration-300 min-h-[36px]">
                 {activePricing ? (
-                    <>
-                        <h1 className="text-3xl font-bold text-[#CF2DFF]">
-                            ₹{activePricing.sellingPrice}
-                        </h1>
-                        <h2 className="text-xl text-gray-400 line-through mb-[2px]">
-                            ₹{activePricing.mrp}
-                        </h2>
-                    </>
+                    isOutOfStock ? (
+                        <h1 className="text-3xl font-bold text-red-500">Out of Stock</h1>
+                    ) : (
+                        <>
+                            <h1 className="text-3xl font-bold text-[#CF2DFF]">
+                                ₹{activePricing.sellingPrice}
+                            </h1>
+                            <h2 className="text-xl text-gray-400 line-through mb-[2px]">
+                                ₹{activePricing.mrp}
+                            </h2>
+                        </>
+                    )
                 ) : (
                     <h1 className="text-2xl text-gray-400 italic">Select a size to view price</h1>
                 )}
@@ -111,7 +124,6 @@ const ProductStructure = ({ src, title, badgeText, text, sizePricing, productId,
             {/* product size */}
             <div className=" w-full mb-[10px]">
                 <p className="text-lg mb-[10px]">Size</p>
-                {/* Wires up the dynamic sizes! */}
                 <SizeButtonGroup currentSize={size} setCurrentSize={setSize} sizeButtons={dynamicSizeButtons} />
             </div>
 
@@ -120,10 +132,22 @@ const ProductStructure = ({ src, title, badgeText, text, sizePricing, productId,
                 <QuantityUpdate quantityState={quantity} setQuantityState={setQuanity} />
             </div>
 
-            {/* add to cart & buy now */}
+            {/* --- NEW: Disabled Buttons if OOS --- */}
             <div className="w-full flex justify-start mb-[30px]">
-                <Button functionCall={handleAddToCart} size={"md"} className={"mr-[10px]"} type={"solid"} value={"Add to cart"} />
-                <Button functionCall={handleBuyNow} size={"md"} type={"outline-solid"} value={"Buy now"} />
+                <Button 
+                    functionCall={handleAddToCart} 
+                    size={"md"} 
+                    className={`mr-[10px] transition-all ${isOutOfStock ? "!bg-gray-300 !border-gray-300 cursor-not-allowed opacity-70" : ""}`} 
+                    type={"solid"} 
+                    value={"Add to cart"} 
+                />
+                <Button 
+                    functionCall={handleBuyNow} 
+                    size={"md"} 
+                    className={`transition-all ${isOutOfStock ? "!border-gray-300 !text-gray-400 cursor-not-allowed opacity-70" : ""}`} 
+                    type={"outline-solid"} 
+                    value={"Buy now"} 
+                />
             </div>
 
             {/* add to wishlist & size guide */}

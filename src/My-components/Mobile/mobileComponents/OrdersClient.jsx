@@ -23,7 +23,7 @@ export default function OrdersClient({ initialOrders }) {
     };
 
     return (
-        <div className="min-h-screen pb-24 bg-gray-50
+        <div className="min-h-screen bg-gray-50
         
         w-full flex justify-center
         ">

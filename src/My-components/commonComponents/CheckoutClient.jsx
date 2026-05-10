@@ -9,98 +9,85 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input"; 
 import { AFFILIATE_DISCOUNT_PERCENTAGE } from "@/lib/utils";
 import { calculateShippingRate } from "@/actions/shiprocketActions";
-
-// Import our secure server actions
 import { createCheckoutSession, verifyPaymentSignature, validateAffiliateCode, markOrderAsFailed } from "@/actions/checkoutActions";
 
 export default function CheckoutClient({ userProfile }) {
     const router = useRouter();
+    
+    // --- 1. Pull everything from the Store ---
     const cart = useCartStore((state) => state.cart);
     const clearCart = useCartStore((state) => state.clearCart); 
+    const buyNowItem = useCartStore((state) => state.buyNowItem);
+    const checkoutMode = useCartStore((state) => state.checkoutMode);
+    const setCheckoutMode = useCartStore((state) => state.setCheckoutMode);
+    const clearBuyNowItem = useCartStore((state) => state.clearBuyNowItem);
+
+    // --- 2. The Magic Switch (Determine which items to process) ---
+    const activeItems = checkoutMode === "buynow" && buyNowItem ? [buyNowItem] : cart;
 
     const [isProcessing, setIsProcessing] = useState(false);
 
-    // --- 1. Address Parsing Logic (Moved to Top) ---
+    // --- Address Parsing Logic ---
     const rawAddresses = userProfile?.delivery_addresses || [];
-
-    // Helper to format the object into a readable string
     const formatAddress = (addr) => {
-        if (typeof addr === 'string') return addr; // Handle legacy strings
+        if (typeof addr === 'string') return addr; 
         if (!addr) return "";
-        // If it's the new object format, combine it beautifully:
         return `${addr.addressLine}, ${addr.city}, ${addr.state} - ${addr.pincode}`;
     };
 
     const formattedAddresses = rawAddresses.map(formatAddress).filter(addr => addr !== "");
-
     const hasPhone = Boolean(userProfile?.phone_number && userProfile.phone_number.trim() !== "");
     const isProfileComplete = formattedAddresses.length > 0 && hasPhone;
 
-    // --- 2. State Initialization ---
-    // Store the formatted string in state safely now!
     const [selectedAddress, setSelectedAddress] = useState(formattedAddresses[0] || "");
-
-    // --- Affiliate State ---
     const [affiliateInput, setAffiliateInput] = useState("");
     const [appliedCode, setAppliedCode] = useState(null);
     const [isApplyingCode, setIsApplyingCode] = useState(false);
-
-    // --- Shipping State ---
-    const [liveDeliveryFee, setLiveDeliveryFee] = useState(50); // Fallback standard rate
+    const [liveDeliveryFee, setLiveDeliveryFee] = useState(50); 
     const [isCalculatingShipping, setIsCalculatingShipping] = useState(false);
 
-    // --- 3. Math Logic ---
-    const subtotal = cart.reduce((total, item) => {
+    // --- 3. Math Logic (Now strictly using activeItems) ---
+    const subtotal = activeItems.reduce((total, item) => {
         const activePrice = item.price || item.totalPrice || item.unitPrice || 0;
         return total + (activePrice * item.quantity);
     }, 0);
 
     const discountAmount = appliedCode ? (subtotal * AFFILIATE_DISCOUNT_PERCENTAGE) / 100 : 0;
     const discountedSubtotal = subtotal - discountAmount;
-
-    // If it's over 500, it's 0. Otherwise, it's whatever Shiprocket says!
     const deliveryFee = discountedSubtotal > 500 ? 0 : liveDeliveryFee;
     const finalTotal = discountedSubtotal + deliveryFee;
 
     // --- 4. Effects ---
-    // Live Rate Fetcher
     useEffect(() => {
         const fetchShipping = async () => {
-            // If they get free shipping, don't even bother waking up Shiprocket
             if (!selectedAddress || discountedSubtotal > 500) return;
-
-            // Extract the 6-digit PIN code from the end of your formatted address string
             const pinMatch = selectedAddress.match(/\d{6}$/);
-
             if (pinMatch) {
                 setIsCalculatingShipping(true);
                 const result = await calculateShippingRate(pinMatch[0]);
-
                 if (result.success) {
                     setLiveDeliveryFee(result.rate);
                 } else {
                     toast.error(result.error);
-                    setLiveDeliveryFee(50); // Fallback just in case
+                    setLiveDeliveryFee(50); 
                 }
                 setIsCalculatingShipping(false);
             }
         };
-
         fetchShipping();
-    }, [selectedAddress, discountedSubtotal]); // Re-run if they change their address or their cart size!
+    }, [selectedAddress, discountedSubtotal]); 
 
+    // Redirect out if there's nothing to buy!
     useEffect(() => {
-        if (cart.length === 0) {
+        if (activeItems.length === 0) {
             router.push('/cart');
         }
-    }, [cart, router]);
-
+    }, [activeItems, router]);
 
     // --- 5. Handlers ---
     const handleApplyCode = async () => {
         if (!affiliateInput.trim()) return;
         setIsApplyingCode(true);
-
         const result = await validateAffiliateCode(affiliateInput);
         if (result.success) {
             setAppliedCode(affiliateInput.trim());
@@ -111,7 +98,6 @@ export default function CheckoutClient({ userProfile }) {
         setIsApplyingCode(false);
     };
 
-    // Function to inject Razorpay into the browser
     const loadRazorpayScript = () => {
         return new Promise((resolve) => {
             const script = document.createElement("script");
@@ -122,11 +108,9 @@ export default function CheckoutClient({ userProfile }) {
         });
     };
 
-    // The Main Payment Handler
     const handlePayment = async () => {
         setIsProcessing(true);
 
-        // Step A: Load the script
         const isLoaded = await loadRazorpayScript();
         if (!isLoaded) {
             toast.error("Razorpay SDK failed to load. Are you online?");
@@ -134,8 +118,8 @@ export default function CheckoutClient({ userProfile }) {
             return;
         }
 
-        // Step B: Call our secure Server Action
-        const result = await createCheckoutSession(cart, selectedAddress, userProfile.phone_number, appliedCode);
+        // Pass activeItems to the database!
+        const result = await createCheckoutSession(activeItems, selectedAddress, userProfile.phone_number, appliedCode);
 
         if (!result.success) {
             toast.error(result.error || "Failed to initialize checkout");
@@ -143,7 +127,6 @@ export default function CheckoutClient({ userProfile }) {
             return;
         }
 
-        // Step C: Configure Razorpay Window
         const options = {
             key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
             amount: result.amount,
@@ -152,7 +135,6 @@ export default function CheckoutClient({ userProfile }) {
             description: "Secure Checkout",
             order_id: result.razorpayOrderId,
             handler: async function (response) {
-                // Step D: Success Verification
                 const verifyResult = await verifyPaymentSignature(
                     response.razorpay_order_id,
                     response.razorpay_payment_id,
@@ -161,7 +143,15 @@ export default function CheckoutClient({ userProfile }) {
 
                 if (verifyResult.success) {
                     toast.success("Payment Successful & Verified!");
-                    clearCart();
+                    
+                    // --- CLEAR THE CORRECT ITEMS ---
+                    if (checkoutMode === "buynow") {
+                        clearBuyNowItem();
+                        setCheckoutMode("cart"); // Reset back to default behavior
+                    } else {
+                        clearCart();
+                    }
+                    
                     router.push('/orders');
                 } else {
                     toast.error("Payment verification failed! Please contact support.");
@@ -173,10 +163,7 @@ export default function CheckoutClient({ userProfile }) {
                 email: userProfile?.email || "",
                 contact: userProfile?.phone_number || ""
             },
-            theme: {
-                color: "#CF2DFF"
-            },
-            // Catch when the user manually closes the window with the 'X'
+            theme: { color: "#CF2DFF" },
             modal: {
                 ondismiss: async function () {
                     setIsProcessing(false);
@@ -186,26 +173,20 @@ export default function CheckoutClient({ userProfile }) {
             }
         };
 
-        // Step E: Create the Razorpay Object! 
         const paymentObject = new window.Razorpay(options);
-
-        // Step F: Catch when the bank declines the card
         paymentObject.on('payment.failed', async function (response) {
             setIsProcessing(false);
             toast.error(response.error.description || "Payment Failed.");
             await markOrderAsFailed(result.orderId);
         });
-
-        // Step G: Pop it open!
         paymentObject.open();
     };
 
-    if (cart.length === 0) return null;
+    if (activeItems.length === 0) return null;
 
     // --- 6. Render ---
     return (
         <div className="min-h-screen pb-32 bg-gray-50">
-            {/* Header */}
             <div className="sticky top-0 z-10 flex items-center p-4 bg-white border-b border-gray-100">
                 <button onClick={() => router.back()} className="p-2 mr-2 bg-gray-50 rounded-full">
                     <ArrowLeft className="w-5 h-5 text-gray-600" />
@@ -214,7 +195,6 @@ export default function CheckoutClient({ userProfile }) {
             </div>
 
             <div className="p-4 space-y-6">
-                {/* Delivery Address Section */}
                 <section>
                     <h2 className="flex items-center gap-2 mb-3 text-lg font-bold text-gray-800">
                         <MapPin className="w-5 h-5 text-[#CF2DFF]" />
@@ -245,10 +225,7 @@ export default function CheckoutClient({ userProfile }) {
                             {formattedAddresses.map((formattedAddr, index) => (
                                 <label
                                     key={index}
-                                    className={`flex items-start p-4 border rounded-xl cursor-pointer transition-colors ${selectedAddress === formattedAddr
-                                        ? "border-[#CF2DFF] bg-purple-50/50"
-                                        : "border-gray-200 bg-white"
-                                        }`}
+                                    className={`flex items-start p-4 border rounded-xl cursor-pointer transition-colors ${selectedAddress === formattedAddr ? "border-[#CF2DFF] bg-purple-50/50" : "border-gray-200 bg-white"}`}
                                 >
                                     <input
                                         type="radio"
@@ -269,11 +246,11 @@ export default function CheckoutClient({ userProfile }) {
                     )}
                 </section>
 
-                {/* Order Summary Section */}
                 <section>
                     <h2 className="mb-3 text-lg font-bold text-gray-800">Order Summary</h2>
                     <div className="p-4 bg-white border border-gray-100 rounded-xl">
-                        {cart.map((item, index) => (
+                        {/* Map through activeItems instead of the cart */}
+                        {activeItems.map((item, index) => (
                             <div key={index} className="flex justify-between py-2 border-b border-gray-50 last:border-0 last:pb-0">
                                 <div className="flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-800 line-clamp-1">{item.productName}</p>
@@ -287,7 +264,6 @@ export default function CheckoutClient({ userProfile }) {
                     </div>
                 </section>
 
-                {/* Affiliate Code Section */}
                 <section>
                     <h2 className="flex items-center gap-2 mb-3 text-lg font-bold text-gray-800">
                         <Tag className="w-5 h-5 text-[#CF2DFF]" />
@@ -329,7 +305,6 @@ export default function CheckoutClient({ userProfile }) {
                     </div>
                 </section>
 
-                {/* Bill Details */}
                 <section>
                     <h2 className="mb-3 text-lg font-bold text-gray-800">Bill Details</h2>
                     <div className="p-4 space-y-3 bg-white border border-gray-100 rounded-xl">
@@ -337,15 +312,12 @@ export default function CheckoutClient({ userProfile }) {
                             <span>Subtotal</span>
                             <span>₹{subtotal.toFixed(2)}</span>
                         </div>
-
-                        {/* Show the discount if applied */}
                         {appliedCode && (
                             <div className="flex justify-between text-sm text-green-600 font-medium">
                                 <span>Discount ({AFFILIATE_DISCOUNT_PERCENTAGE}%)</span>
                                 <span>- ₹{discountAmount.toFixed(2)}</span>
                             </div>
                         )}
-
                         <div className="flex justify-between text-sm text-gray-600">
                             <span>Delivery Fee</span>
                             <span className={deliveryFee === 0 ? "text-green-600 font-medium" : ""}>
@@ -362,7 +334,6 @@ export default function CheckoutClient({ userProfile }) {
                 </section>
             </div>
 
-            {/* Sticky Payment Footer */}
             <div className="fixed bottom-[60px] left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
                 <Button
                     onClick={handlePayment}
@@ -370,15 +341,9 @@ export default function CheckoutClient({ userProfile }) {
                     className="w-full h-14 bg-[#CF2DFF] hover:bg-[#b026d9] text-white text-lg font-bold rounded-xl disabled:bg-gray-300 disabled:opacity-100"
                 >
                     {isProcessing ? (
-                        <>
-                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                            Processing...
-                        </>
+                        <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Processing...</>
                     ) : (
-                        <>
-                            <CreditCard className="w-5 h-5 mr-2" />
-                            Pay ₹{finalTotal.toFixed(2)}
-                        </>
+                        <><CreditCard className="w-5 h-5 mr-2" />Pay ₹{finalTotal.toFixed(2)}</>
                     )}
                 </Button>
             </div>

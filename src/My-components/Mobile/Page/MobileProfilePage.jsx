@@ -48,7 +48,7 @@ export default async function MobileProfilePage() {
 
     // 5. Render the Client UI and pass the Prisma data in as the "initialProfile" prop!
     return (
-        <div className="min-h-screen pt-10 pb-20 bg-gray-50">
+        <div className="min-h-screen pb-20 bg-gray-50">
             <MobileUserProfile initialProfile={userProfile} />
         </div>
     );

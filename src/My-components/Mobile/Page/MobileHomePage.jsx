@@ -128,19 +128,6 @@ const MobileHomePage = () => {
                         /* Show Actual Products once loaded */
                         <>
                             {/* product 1 */}
-                            {productArray?.[0] && (
-                                <ProductStructure
-                                    src={productArray[0].productImageUrl}
-                                    title={productArray[0].name}
-                                    badgeText={"pack of 15 pads"}
-                                    text={productArray[0].productDetails}
-                                    sizePricing={productArray[0].sizePricing}
-                                    sizeButtons={"large,xl,xxl,xxxl"}
-                                    productId={productArray[0].id}
-                                />
-                            )}
-
-                            {/* product 2 */}
                             {productArray?.[1] && (
                                 <ProductStructure
                                     src={productArray[1].productImageUrl}
@@ -153,17 +140,30 @@ const MobileHomePage = () => {
                                 />
                             )}
 
-                            {/* product 3 */}
+                            {/* product 2 */}
                             {productArray?.[2] && (
                                 <ProductStructure
                                     src={productArray[2].productImageUrl}
                                     title={productArray[2].name}
-                                    badgeText={"pack of 5 pantie"}
+                                    badgeText={"pack of 15 pads"}
                                     text={productArray[2].productDetails}
                                     sizePricing={productArray[2].sizePricing}
+                                    sizeButtons={"large,xl,xxl,xxxl"}
+                                    productId={productArray[2].id}
+                                />
+                            )}
+
+                            {/* product 3 */}
+                            {productArray?.[0] && (
+                                <ProductStructure
+                                    src={productArray[0].productImageUrl}
+                                    title={productArray[0].name}
+                                    badgeText={"pack of 5 pantie"}
+                                    text={productArray[0].productDetails}
+                                    sizePricing={productArray[0].sizePricing}
                                     sizeChart={true}
                                     sizeButtons={"small,medium,large,xl,xxl,xxxl"}
-                                    productId={productArray[2].id}
+                                    productId={productArray[0].id}
                                 />
                             )}
                         </>

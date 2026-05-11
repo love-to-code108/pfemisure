@@ -18,7 +18,7 @@ const Product1 = () => {
         const fetchProduct = async () => {
             try {
                 const products = await getAllProducts();
-                setProduct(products[0]); // Green An-Ion is index 0
+                setProduct(products[1]); // Green An-Ion is index 0
             } catch (error) {
                 console.error("Failed to fetch product", error);
             } finally {

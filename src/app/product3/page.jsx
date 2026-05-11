@@ -14,7 +14,7 @@ const Product3 = () => {
         const fetchProduct = async () => {
             try {
                 const products = await getAllProducts();
-                setProduct(products[2]); // Period Panty is index 2
+                setProduct(products[0]); // Period Panty is index 2
             } catch (error) {
                 console.error("Failed to fetch product", error);
             } finally {

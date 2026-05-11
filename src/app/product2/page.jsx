@@ -17,7 +17,7 @@ const Product2 = () => {
         const fetchProduct = async () => {
             try {
                 const products = await getAllProducts();
-                setProduct(products[1]); // Graphene Pad is index 1
+                setProduct(products[2]); // Graphene Pad is index 1
             } catch (error) {
                 console.error("Failed to fetch product", error);
             } finally {

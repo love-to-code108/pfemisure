@@ -1,13 +1,13 @@
 "use client"
 
 import Link from "next/link";
-import { Heart, Menu, ShoppingCart, User, Home, Loader2 } from "lucide-react"; 
+import { Heart, Menu, ShoppingCart, User, Home, Loader2 } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
-import { FaFacebookSquare } from "react-icons/fa"; 
+import { FaFacebookSquare } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { createBrowserClient } from '@supabase/ssr'; 
-import { useCartStore } from "@/store/useCartStore"; 
+import { createBrowserClient } from '@supabase/ssr';
+import { useCartStore } from "@/store/useCartStore";
 
 // Shadcn Sheet
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -27,7 +27,7 @@ const MobileNavigationBar = () => {
 
     const router = useRouter();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [authLoading, setAuthLoading] = useState(null); 
+    const [authLoading, setAuthLoading] = useState(null);
 
     const totalItems = useCartStore((state) => state.getTotalItems());
 
@@ -36,14 +36,14 @@ const MobileNavigationBar = () => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             if (session) {
                 setIsLoggedIn(true);
-                setIsDialogOpen(false); 
+                setIsDialogOpen(false);
             } else {
                 setIsLoggedIn(false);
             }
         });
 
         return () => {
-            subscription.unsubscribe(); 
+            subscription.unsubscribe();
         };
     }, [supabase]);
 
@@ -56,7 +56,7 @@ const MobileNavigationBar = () => {
     }
 
     const handleGoogleLogin = async () => {
-        setAuthLoading('google'); 
+        setAuthLoading('google');
         await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: { redirectTo: `${window.location.origin}/auth/callback` },
@@ -64,7 +64,7 @@ const MobileNavigationBar = () => {
     };
 
     const handleFacebookLogin = async () => {
-        setAuthLoading('facebook'); 
+        setAuthLoading('facebook');
         await supabase.auth.signInWithOAuth({
             provider: 'facebook',
             options: { redirectTo: `${window.location.origin}/auth/callback` },
@@ -86,11 +86,42 @@ const MobileNavigationBar = () => {
 
             <div className="flex justify-between w-[250px] xs:w-[300px]">
 
+
+                {/* MENU BUTTON */}
+                <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                    <SheetTrigger asChild>
+                        <button><Menu color="#CF2DFF" /></button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="!w-[250px] bg-white">
+                        <SheetHeader><SheetTitle className="sr-only">Menu</SheetTitle></SheetHeader>
+                        <div className="w-full h-full flex justify-center items-center">
+                            <div className="w-full flex flex-col text-lg pl-[20px]">
+                                <Link onClick={closingTheSheet} className={navbarLinkStyling("/home")} href="/home">Home</Link>
+                                <Link onClick={closingTheSheet} className={navbarLinkStyling("/product1")} href="/product1">Green AN-ION Pad</Link>
+                                <Link onClick={closingTheSheet} className={navbarLinkStyling("/product2")} href="/product2">Graphene AN-ION Pad</Link>
+                                <Link onClick={closingTheSheet} className={navbarLinkStyling("/product3")} href="/product3">AN-ION Period Panty</Link>
+
+                                {/* --- NEW: My Orders Link --- */}
+                                <Link onClick={closingTheSheet} className={navbarLinkStyling("/orders")} href="/orders">My Orders</Link>
+
+                                <Link onClick={closingTheSheet} className={navbarLinkStyling("/affiliate")} href="/affiliate">Affiliate</Link>
+                            </div>
+                        </div>
+                    </SheetContent>
+                </Sheet>
+
+
+
+
+
+
                 {/* --- UPDATED: Home Button instead of Orders --- */}
                 <button onClick={() => router.push('/home')}>
                     <Home color="#CF2DFF" className="w-6 h-6" />
                 </button>
 
+
+                {/* PROFILE */}
                 <button onClick={handleProfileIconClick} className=" relative">
                     <User color="#CF2DFF" />
                     <div className={` ${!isLoggedIn && "bg-red-500 w-[8px] h-[8px] rounded-full absolute top-0 right-[3px]"} `} />
@@ -121,6 +152,9 @@ const MobileNavigationBar = () => {
                     </DialogContent>
                 </Dialog>
 
+
+
+
                 {/* --- UPDATED: cart with Notification Badge --- */}
                 <Link href={"/cart"} className="relative flex items-center justify-center">
                     <ShoppingCart color="#CF2DFF" />
@@ -131,27 +165,10 @@ const MobileNavigationBar = () => {
                     )}
                 </Link>
 
-                <Sheet open={isOpen} onOpenChange={setIsOpen}>
-                    <SheetTrigger asChild>
-                        <button><Menu color="#CF2DFF" /></button>
-                    </SheetTrigger>
-                    <SheetContent side="left" className="!w-[250px] bg-white">
-                        <SheetHeader><SheetTitle className="sr-only">Menu</SheetTitle></SheetHeader>
-                        <div className="w-full h-full flex justify-center items-center">
-                            <div className="w-full flex flex-col text-lg pl-[20px]">
-                                <Link onClick={closingTheSheet} className={navbarLinkStyling("/home")} href="/home">Home</Link>
-                                <Link onClick={closingTheSheet} className={navbarLinkStyling("/product1")} href="/product1">Green AN-ION Pad</Link>
-                                <Link onClick={closingTheSheet} className={navbarLinkStyling("/product2")} href="/product2">Graphene AN-ION Pad</Link>
-                                <Link onClick={closingTheSheet} className={navbarLinkStyling("/product3")} href="/product3">AN-ION Period Panty</Link>
-                                
-                                {/* --- NEW: My Orders Link --- */}
-                                <Link onClick={closingTheSheet} className={navbarLinkStyling("/orders")} href="/orders">My Orders</Link>
-                                
-                                <Link onClick={closingTheSheet} className={navbarLinkStyling("/affiliate")} href="/affiliate">Affiliate</Link>
-                            </div>
-                        </div>
-                    </SheetContent>
-                </Sheet>
+
+
+
+
             </div>
         </div>
     )

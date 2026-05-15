@@ -128,9 +128,8 @@ export default function OrdersFulfillmentClient({ initialOrders }) {
                 </Select>
             </div>
 
-            {/* --- The Data Table (Glitch Fixed with overflow-x-auto & min widths) --- */}
+            {/* --- The Data Table --- */}
             <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-x-auto w-full">
-                {/* Setting a min-width ensures columns never squish below their readable limits */}
                 <table className="w-full text-left border-collapse min-w-[1100px]">
                     <thead>
                         <tr className="bg-gray-50 border-b border-gray-200">
@@ -165,7 +164,7 @@ export default function OrdersFulfillmentClient({ initialOrders }) {
                                         </p>
                                     </td>
 
-                                    {/* 2. Amount (No Purple) */}
+                                    {/* 2. Amount */}
                                     <td className="px-6 py-5 whitespace-nowrap">
                                         <p className="text-sm font-black text-gray-800">₹{order.total_amount.toFixed(2)}</p>
                                     </td>
@@ -227,15 +226,15 @@ export default function OrdersFulfillmentClient({ initialOrders }) {
                                                     disabled={updatingId === order.id}
                                                     className="w-full max-w-[190px] flex items-center justify-center gap-2 px-4 py-2 bg-[#CF2DFF] hover:bg-[#b026d9] text-white text-xs font-bold rounded-lg shadow-sm transition-all"
                                                 >
-                                                    {updatingId === order.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Truck className="w-4 h-4"/> Hand to Shiprocket</>}
+                                                    {updatingId === order.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Truck className="w-4 h-4"/> Mark as Shipped</>}
                                                 </button>
                                             )}
 
                                             {order.payment_status === "SHIPPED" && (
                                                 <div className="flex flex-col items-end w-full">
                                                     <div className="flex items-center gap-1.5 text-[11px] font-bold text-green-700 mb-2 bg-green-50 px-2.5 py-1.5 rounded-md border border-green-200">
-                                                        <CheckCircle2 className="w-3.5 h-3.5" />
-                                                        Sent to Shiprocket
+                                                        <Truck className="w-3.5 h-3.5" />
+                                                        Order Shipped
                                                     </div>
                                                     <button 
                                                         onClick={() => handleStatusChange(order.id, "DELIVERED")}

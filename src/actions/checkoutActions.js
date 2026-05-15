@@ -6,7 +6,6 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
-import { AFFILIATE_DISCOUNT_PERCENTAGE } from "@/lib/utils";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
@@ -18,28 +17,43 @@ const razorpayInstance = new Razorpay({
 });
 
 export async function validateAffiliateCode(code) {
+    if (!code) return { success: false, error: "No code provided" };
+
     try {
-        const cookieStore = await cookies();
-        const supabase = createServerClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-            { cookies: { getAll() { return cookieStore.getAll(); } } }
-        );
-
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return { success: false, error: "Unauthorized" };
-
-        const profile = await prisma.profile.findUnique({
-            where: { affiliate_code: code.trim() } 
+        // 1. Find the profile that owns this code
+        const affiliate = await prisma.profile.findUnique({
+            where: { affiliate_code: code },
+            select: { 
+                id: true,
+                custom_discount_percent: true 
+            }
         });
 
-        if (!profile) return { success: false, error: "Invalid affiliate code." };
-        if (profile.id === user.id) return { success: false, error: "You cannot use your own affiliate code!" };
+        if (!affiliate) {
+            return { success: false, error: "Invalid affiliate code." };
+        }
 
-        return { success: true };
+        // 2. Fetch the global fallback settings (Row ID 1)
+        const settings = await prisma.globalSettings.findUnique({
+            where: { id: 1 }
+        });
+
+        // If settings haven't been created in the DB yet, fallback to 5%
+        const fallbackDiscount = settings ? settings.globalDiscountPercent : 5.0;
+
+        // 3. The Magic: Use custom VIP rate if it exists, otherwise use global rate
+        const finalDiscountRate = affiliate.custom_discount_percent !== null 
+            ? affiliate.custom_discount_percent 
+            : fallbackDiscount;
+
+        return { 
+            success: true, 
+            discountPercent: finalDiscountRate 
+        };
+        
     } catch (error) {
-        console.error("Affiliate Validation Error:", error);
-        return { success: false, error: "Failed to validate code." };
+        console.error("Error validating code:", error);
+        return { success: false, error: "Failed to validate code" };
     }
 }
 
@@ -93,22 +107,51 @@ export async function createCheckoutSession(cartItems, deliveryAddress, contactN
         // --- AFFILIATE MATH ---
         let discountAmount = 0;
         let validAffiliateCode = null;
+        let earnedCommission = 0;
 
         if (appliedAffiliateCode) {
-            const profile = await prisma.profile.findUnique({
-                where: { affiliate_code: appliedAffiliateCode }
+            // Find the influencer's profile
+            const affiliateProfile = await prisma.profile.findUnique({
+                where: { affiliate_code: appliedAffiliateCode },
+                select: {
+                    id: true,
+                    custom_discount_percent: true,
+                    custom_earning_percent: true
+                }
             });
-            if (profile && profile.id !== userId) {
+
+            // Prevent users from using their own code
+            if (affiliateProfile && affiliateProfile.id !== userId) {
                 validAffiliateCode = appliedAffiliateCode;
-                discountAmount = (calculatedSubtotal * AFFILIATE_DISCOUNT_PERCENTAGE) / 100;
+
+                // Fetch Global Settings
+                const settings = await prisma.globalSettings.findUnique({
+                    where: { id: 1 }
+                });
+
+                const fallbackDiscount = settings ? settings.globalDiscountPercent : 5.0;
+                const fallbackEarning = settings ? settings.globalEarningPercent : 10.0;
+
+                const finalDiscountRate = affiliateProfile.custom_discount_percent !== null 
+                    ? affiliateProfile.custom_discount_percent 
+                    : fallbackDiscount;
+
+                const finalEarningRate = affiliateProfile.custom_earning_percent !== null 
+                    ? affiliateProfile.custom_earning_percent 
+                    : fallbackEarning;
+
+                // Calculate Math
+                discountAmount = (calculatedSubtotal * finalDiscountRate) / 100;
+                
+                // Commission is based on the discounted amount (what the customer actually pays for the product)
+                const temporaryDiscountedSubtotal = calculatedSubtotal - discountAmount;
+                earnedCommission = (temporaryDiscountedSubtotal * finalEarningRate) / 100;
             }
         }
 
         const discountedSubtotal = calculatedSubtotal - discountAmount;
         const deliveryFee = discountedSubtotal > 500 ? 0 : 50; 
         const finalTotal = discountedSubtotal + deliveryFee;
-
-        const earnedCommission = validAffiliateCode ? (discountedSubtotal * 0.10) : 0;
 
         const razorpayOptions = {
             amount: Math.round(finalTotal * 100), 
@@ -144,7 +187,7 @@ export async function createCheckoutSession(cartItems, deliveryAddress, contactN
 
     } catch (error) {
         console.error("Checkout Initialization Error:", error);
-        return { success: false, error: error.message }; // This sends the exact OOS message to the UI!
+        return { success: false, error: error.message }; 
     }
 }
 

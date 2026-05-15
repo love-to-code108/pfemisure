@@ -13,9 +13,14 @@ model Profile {
   delivery_addresses Json[]   @default([])
   affiliate_code     String?  @unique
 
+  custom_discount_percent Float?
+  custom_earning_percent  Float?
+
   // Updated: A user can have many orders
   orders             Order[]
   role               String   @default("USER")
+
+  
 
   @@map("profiles")
 }
@@ -90,4 +95,16 @@ model OrderItem {
   unit_price  Float    
 
   @@map("order_items")
+}
+
+
+
+// NEW: Global Affiliate Configuration
+model GlobalSettings {
+  id                    Int      @id @default(1)
+  globalDiscountPercent Float    @default(5.0)   // Default 5% discount for public
+  globalEarningPercent  Float    @default(10.0)  // Default 10% commission for public
+  updated_at            DateTime @updatedAt
+
+  @@map("global_settings")
 }

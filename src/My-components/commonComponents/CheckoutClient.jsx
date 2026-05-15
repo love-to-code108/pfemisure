@@ -7,8 +7,7 @@ import { ArrowLeft, MapPin, CreditCard, AlertCircle, Loader2, Check, Tag } from 
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
-import { AFFILIATE_DISCOUNT_PERCENTAGE } from "@/lib/utils";
-import { calculateShippingRate } from "@/actions/shiprocketActions";
+// import { AFFILIATE_DISCOUNT_PERCENTAGE } from "@/lib/utils";
 import { createCheckoutSession, verifyPaymentSignature, validateAffiliateCode, markOrderAsFailed } from "@/actions/checkoutActions";
 
 export default function CheckoutClient({ userProfile }) {
@@ -43,8 +42,7 @@ export default function CheckoutClient({ userProfile }) {
     const [affiliateInput, setAffiliateInput] = useState("");
     const [appliedCode, setAppliedCode] = useState(null);
     const [isApplyingCode, setIsApplyingCode] = useState(false);
-    const [liveDeliveryFee, setLiveDeliveryFee] = useState(50);
-    const [isCalculatingShipping, setIsCalculatingShipping] = useState(false);
+    const [discountPercent, setDiscountPercent] = useState(0);
 
     // --- 3. Math Logic (Now strictly using activeItems) ---
     const subtotal = activeItems.reduce((total, item) => {
@@ -52,30 +50,12 @@ export default function CheckoutClient({ userProfile }) {
         return total + (activePrice * item.quantity);
     }, 0);
 
-    const discountAmount = appliedCode ? (subtotal * AFFILIATE_DISCOUNT_PERCENTAGE) / 100 : 0;
+    const discountAmount = appliedCode ? (subtotal * discountPercent) / 100 : 0;
     const discountedSubtotal = subtotal - discountAmount;
-    const deliveryFee = discountedSubtotal > 500 ? 0 : liveDeliveryFee;
+    
+    // Flat-rate delivery logic: Free over ₹500, otherwise ₹50
+    const deliveryFee = discountedSubtotal > 500 ? 0 : 50;
     const finalTotal = discountedSubtotal + deliveryFee;
-
-    // --- 4. Effects ---
-    useEffect(() => {
-        const fetchShipping = async () => {
-            if (!selectedAddress || discountedSubtotal > 500) return;
-            const pinMatch = selectedAddress.match(/\d{6}$/);
-            if (pinMatch) {
-                setIsCalculatingShipping(true);
-                const result = await calculateShippingRate(pinMatch[0]);
-                if (result.success) {
-                    setLiveDeliveryFee(result.rate);
-                } else {
-                    toast.error(result.error);
-                    setLiveDeliveryFee(50);
-                }
-                setIsCalculatingShipping(false);
-            }
-        };
-        fetchShipping();
-    }, [selectedAddress, discountedSubtotal]);
 
     // Redirect out if there's nothing to buy!
     useEffect(() => {
@@ -84,19 +64,21 @@ export default function CheckoutClient({ userProfile }) {
         }
     }, [activeItems, router]);
 
-    // --- 5. Handlers ---
+    // --- 4. Handlers ---
     const handleApplyCode = async () => {
-        if (!affiliateInput.trim()) return;
-        setIsApplyingCode(true);
-        const result = await validateAffiliateCode(affiliateInput);
-        if (result.success) {
-            setAppliedCode(affiliateInput.trim());
-            toast.success(`${AFFILIATE_DISCOUNT_PERCENTAGE}% Discount Applied!`);
-        } else {
-            toast.error(result.error);
-        }
-        setIsApplyingCode(false);
-    };
+    if (!affiliateInput.trim()) return;
+    setIsApplyingCode(true);
+    const result = await validateAffiliateCode(affiliateInput);
+    
+    if (result.success) {
+        setAppliedCode(affiliateInput.trim());
+        setDiscountPercent(result.discountPercent); // <-- Saves the dynamic %
+        toast.success(`${result.discountPercent}% Discount Applied!`); // <-- Shows dynamic % in toast
+    } else {
+        toast.error(result.error);
+    }
+    setIsApplyingCode(false);
+};
 
     const loadRazorpayScript = () => {
         return new Promise((resolve) => {
@@ -184,7 +166,7 @@ export default function CheckoutClient({ userProfile }) {
 
     if (activeItems.length === 0) return null;
 
-    // --- 6. Render ---
+    // --- 5. Render ---
     return (
         <div className="min-h-screen pb-32 bg-gray-50
         
@@ -318,16 +300,14 @@ export default function CheckoutClient({ userProfile }) {
                             </div>
                             {appliedCode && (
                                 <div className="flex justify-between text-sm text-green-600 font-medium">
-                                    <span>Discount ({AFFILIATE_DISCOUNT_PERCENTAGE}%)</span>
+                                    <span>Discount ({discountPercent}%)</span>
                                     <span>- ₹{discountAmount.toFixed(2)}</span>
                                 </div>
                             )}
                             <div className="flex justify-between text-sm text-gray-600">
                                 <span>Delivery Fee</span>
                                 <span className={deliveryFee === 0 ? "text-green-600 font-medium" : ""}>
-                                    {deliveryFee === 0 ? "FREE" : (
-                                        isCalculatingShipping ? <Loader2 className="w-4 h-4 animate-spin text-[#CF2DFF]" /> : `₹${deliveryFee.toFixed(2)}`
-                                    )}
+                                    {deliveryFee === 0 ? "FREE" : `₹${deliveryFee.toFixed(2)}`}
                                 </span>
                             </div>
                             <div className="pt-3 mt-3 border-t border-dashed border-gray-200 flex justify-between items-center">

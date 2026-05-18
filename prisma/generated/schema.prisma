@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Profile {
+  id                 String  @id @db.Uuid
+  full_name          String?
+  email              String?
+  phone_number       String?
+  delivery_addresses Json[]  @default([])
+  affiliate_code     String? @unique
+
+  custom_discount_percent Float?
+  custom_earning_percent  Float?
+
+  // Updated: A user can have many orders
+  orders Order[]
+  role   String  @default("USER")
+
+  @@map("profiles")
+}
+
+model Product {
+  id              String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String
+  // --- UPDATED: Replaced 'price' with dynamic JSON pricing ---
+  sizePricing     Json
+  productDetails  String
+  productImageUrl String
+
+  // A product can appear in many order items
+  order_items OrderItem[]
+
+  @@map("products")
+}
+
+// NEW: Represents the entire Cart/Checkout session
+model Order {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Who bought it?
+  profile_id String  @db.Uuid
+  buyer      Profile @relation(fields: [profile_id], references: [id])
+
+  // Checkout Snapshot (Saves the exact address they chose)
+  delivery_address String
+  contact_number   String
+
+  // Math & Discounts
+  total_amount   Float
+  affiliate_code String?
+
+  // NEW: Secure Financial Tracking
+  affiliate_commission Float   @default(0)
+  commission_paid      Boolean @default(false)
+
+  // Razorpay Payment Tracking
+  payment_status      String  @default("PENDING") // PENDING, PAID, FAILED
+  order_status        String  @default("PROCESSING") // PROCESSING, SHIPPED, DELIVERED
+  razorpay_order_id   String? @unique
+  razorpay_payment_id String? @unique
+  razorpay_signature  String?
+
+  // The actual products in this order
+  items OrderItem[]
+
+  @@map("orders")
+}
+
+// NEW: Represents individual products within the Cart
+model OrderItem {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  // Which order does this belong to?
+  order_id String @db.Uuid
+  order    Order  @relation(fields: [order_id], references: [id], onDelete: Cascade)
+
+  // Which product is it?
+  product_id String  @db.Uuid
+  product    Product @relation(fields: [product_id], references: [id])
+
+  // Item details
+  quantity Int
+  size     String? // e.g., "XL", "XXL"
+
+  // CRUCIAL: Save the price AT THE TIME OF PURCHASE. 
+  // If you change the product price next year, old receipts shouldn't change!
+  unit_price Float
+
+  @@map("order_items")
+}
+
+// NEW: Global Affiliate Configuration
+model GlobalSettings {
+  id                    Int      @id @default(1)
+  globalDiscountPercent Float    @default(5.0) // Default 5% discount for public
+  globalEarningPercent  Float    @default(10.0) // Default 10% commission for public
+  updated_at            DateTime @updatedAt
+
+  @@map("global_settings")
+}

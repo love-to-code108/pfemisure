@@ -16,7 +16,9 @@ export const dynamic = 'force-dynamic';
 export default async function AdminDashboard() {
     // Fetch some quick stats for the overview
     const [totalOrders, pendingOrders, totalSales] = await Promise.all([
-        prisma.order.count(),
+        prisma.order.count({where: {razorpay_payment_id : {
+            not:null
+        }} } ),
         prisma.order.count({ where: { payment_status: "PENDING" } }),
         prisma.order.aggregate({
             // ADD "DELIVERED" HERE:
@@ -28,8 +30,7 @@ export default async function AdminDashboard() {
     const stats = [
         { name: "Total Revenue", value: `₹${(totalSales._sum.total_amount || 0).toFixed(0)}`, icon: <IndianRupee className="w-6 h-6 text-green-600" />, bg: "bg-green-50" },
         { name: "Total Orders", value: totalOrders, icon: <Package className="w-6 h-6 text-blue-600" />, bg: "bg-blue-50" },
-        { name: "Pending Payments", value: pendingOrders, icon: <Clock className="w-6 h-6 text-orange-600" />, bg: "bg-orange-50" },
-        { name: "Conversion Rate", value: "24%", icon: <TrendingUp className="w-6 h-6 text-[#CF2DFF]" />, bg: "bg-purple-50" },
+        
     ];
 
     return (
@@ -52,10 +53,8 @@ export default async function AdminDashboard() {
                 ))}
             </div>
 
-            {/* We will add the recent orders table here later! */}
-            <div className="mt-12 p-8 border-2 border-dashed border-gray-200 rounded-2xl text-center text-gray-500">
-                Data Tables generating in Phase 3 & 4...
-            </div>
+            
+            
         </div>
     );
 }

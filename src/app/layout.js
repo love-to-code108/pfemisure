@@ -8,6 +8,7 @@ import {
 import "./globals.css";
 import MobileNavigationBar from "@/My-components/Mobile/mobileComponents/MobileNavigationBar";
 import { Toaster } from "@/components/ui/sonner"
+import DesktopNavbar from "@/My-components/Desktop/DesktopComponents/desktopNavbar";
 
 
 const inter = Inter({
@@ -80,6 +81,7 @@ export default function RootLayout({ children }) {
       <body suppressHydrationWarning className="min-h-full flex flex-col">
 
         <MobileNavigationBar />
+        <DesktopNavbar/>
         <main>
           {children}
           <Toaster position="top-center" richColors />

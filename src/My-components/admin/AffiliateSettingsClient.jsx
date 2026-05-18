@@ -62,9 +62,6 @@ export default function AffiliateSettingsClient() {
     const [searchQuery, setSearchQuery] = useState("");
     const [savingUserId, setSavingUserId] = useState(null);
 
-    useEffect(() => {
-        fetchData();
-    }, []);
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -80,6 +77,15 @@ export default function AffiliateSettingsClient() {
         }
         setIsLoading(false);
     };
+
+
+
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    
 
     const handleSaveGlobal = async () => {
         setIsSavingGlobal(true);

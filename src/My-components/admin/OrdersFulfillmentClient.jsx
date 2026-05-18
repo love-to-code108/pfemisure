@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Package, Truck, Clock, CheckCircle2, MapPin, Phone, Loader2, Search, Filter, ArrowUpDown } from "lucide-react";
+import { Package, Truck, Clock, CheckCircle2, MapPin, Phone, Loader2, Search, Filter, ArrowUpDown, User } from "lucide-react";
 import { updateOrderStatus } from "@/actions/adminActions";
 import { Input } from "@/components/ui/input";
 import {
@@ -104,8 +104,8 @@ export default function OrdersFulfillmentClient({ initialOrders }) {
                     </SelectTrigger>
                     <SelectContent className="bg-white">
                         <SelectItem value="ALL">All Statuses</SelectItem>
-                        <SelectItem value="PAID">Paid (Needs Packing)</SelectItem>
-                        <SelectItem value="PROCESSING">Processing (Needs Shipping)</SelectItem>
+                        <SelectItem value="PAID">Paid </SelectItem>
+                        <SelectItem value="PROCESSING">Processing</SelectItem>
                         <SelectItem value="SHIPPED">Shipped</SelectItem>
                         <SelectItem value="DELIVERED">Delivered</SelectItem>
                         <SelectItem value="FAILED">Failed</SelectItem>
@@ -171,7 +171,7 @@ export default function OrdersFulfillmentClient({ initialOrders }) {
 
                                     {/* 3. Status Badge */}
                                     <td className="px-6 py-5 whitespace-nowrap">
-                                        <div className={`inline-flex items-center px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider border rounded-full ${getStatusBadge(order.payment_status)}`}>
+                                        <div className={`inline-flex items-center px-2 text-[10px] font-bold uppercase tracking-wider border rounded-full ${getStatusBadge(order.payment_status)}`}>
                                             {order.payment_status}
                                         </div>
                                     </td>
@@ -195,6 +195,11 @@ export default function OrdersFulfillmentClient({ initialOrders }) {
 
                                     {/* 5. Customer & Delivery */}
                                     <td className="px-6 py-5 min-w-[280px]">
+                                        <div className=" flex items-start gap-2 mb-2">
+                                            <User className="w-4 h-4 text-gray-400 shrink-0 mt-0.5"/>
+                                            <p className=" text-sm text-gray-800">{order.buyer.full_name}</p>
+
+                                        </div>
                                         <div className="flex items-start gap-2 mb-2">
                                             <Phone className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
                                             <p className="text-sm font-semibold text-gray-800">{order.contact_number}</p>

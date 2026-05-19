@@ -1,4 +1,3 @@
-import DesktopNavbar from "../DesktopComponents/desktopNavbar";
 
 
 
@@ -11,7 +10,7 @@ const DesktopHomePage = () => {
 
 
             {/* navbar */}
-            <DesktopNavbar />
+            
 
 
             {/* page under development */}

@@ -17,6 +17,8 @@ const DesktopNavbar = () => {
         px-[100px]
 
         flex items-center justify-between
+
+        hidden lg:flex
         ">
 
 

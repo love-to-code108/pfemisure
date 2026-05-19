@@ -16,9 +16,17 @@ export default async function AdminOrdersPage() {
                 include: {
                     product: true 
                 }
+            },
+          buyer:{
+            select:{
+                full_name:true
             }
-        }
+          }  
+        },
+        
     });
+
+    console.log(allOrders);
 
     return <OrdersFulfillmentClient initialOrders={allOrders} />;
 }
